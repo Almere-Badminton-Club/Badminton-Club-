@@ -3,15 +3,22 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import HomePage from "./Pages/HomePage";
 import Navbar from "./Components/Navbar";
+import { BookingProvider } from "./Context/BookingContext";
+import SeatBooking from "./Components/SeatBooking";
+import SignupPage from "./Pages/SignupPage";
+
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
-    <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />}/>
-      </Routes>
+      <Navbar />
+      <BookingProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/signup" element={<SignupPage />} />          
+        </Routes>
+        <SeatBooking />
+      </BookingProvider>
     </>
   );
 }
