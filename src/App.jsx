@@ -4,8 +4,9 @@ import "./App.css";
 import HomePage from "./Pages/HomePage";
 import Navbar from "./Components/Navbar";
 import { BookingProvider } from "./Context/BookingContext";
-import SeatBooking from "./Components/SeatBooking";
 import SignupPage from "./Pages/SignupPage";
+import LoginPage from "./Pages/LoginPage";
+import Registration from "./Components/Registration";
 
 function App() {
 
@@ -15,9 +16,13 @@ function App() {
       <BookingProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/signup" element={<SignupPage />} />          
+          <Route path="/signup" element={<SignupPage />} />  
+          <Route path="/login" element={<LoginPage />} />  
+          <Route path="/registration" element={<Registration />} />  
+
+
         </Routes>
-        <SeatBooking />
+        
       </BookingProvider>
     </>
   );
