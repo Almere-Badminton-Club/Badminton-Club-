@@ -112,6 +112,8 @@ function SignupPage(props) {
     </section>
     {errorMessage && <p className="error-message">{errorMessage}</p>}
   </div>
-  );
+);
+  
+  
 }
 export default SignupPage;

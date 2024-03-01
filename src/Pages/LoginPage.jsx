@@ -16,17 +16,33 @@ const LoginPage = () => {
     const requestBody = { email, password };
 
     axios
-      .post(`${import.meta.env.VITE_API_URL}/auth/login`, requestBody)
-      .then((response) => {
-        console.log("JWT token", response.data.authToken);
-        // If you have a method to store the token, call it here
-        // If you have a method to authenticate the user, call it here
-        navigate("/");
-      })
-      .catch((error) => {
-        const errorDescription = error.response.data.message;
-        setErrorMessage(errorDescription);
-      });
+  .post(`${import.meta.env.VITE_API_URL}/auth/login`, requestBody)
+  .then((response) => {
+    console.log("Response from server:", response);
+
+    // Check if response and response.data exist
+    if (response && response.data) {
+      // Access the token property from the data object
+      const token = response.data.token;
+
+      // Save the token in the localStorage
+      storeToken(token);
+
+      // Verify the token by sending a request 
+      // to the server's JWT validation endpoint.
+      authenticateUser();
+      navigate("/");
+    } else {
+      // Handle the case when response or response.data is undefined
+      console.error("Response or response data is undefined:", response);
+      setErrorMessage("Error: Response or response data is undefined");
+    }
+  })
+  .catch((error) => {
+    // Check if error.response and error.response.data exist
+    const errorDescription = error.response?.data?.message || "An error occurred";
+    setErrorMessage(errorDescription);
+  });
   };
 
   return (
@@ -76,6 +92,8 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   className="btn btn-primary btn-block mb-4"
+                  href="/"
+
                 >
                   {" "}
                   Login
