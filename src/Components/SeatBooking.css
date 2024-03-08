@@ -1,0 +1,49 @@
+.seat-booking-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .date-picker-container {
+    margin-bottom: 30px;
+  }
+  
+  .date-navigation {
+    display: flex;
+    align-items: center;
+    margin-left:auto ;
+  }
+  
+  .date-navigation button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin: 0 10px;
+  }
+  
+  .slots-container table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .slots-container th,
+  .slots-container td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+  
+  .slots-container th {
+    background-color: #f0f0f0;
+  }
+  
+  .available {
+    background-color: #e6f7ff; /* light blue */
+  }
+  
+  .booked {
+    background-color: #ffd6cc; /* light red */
+  }
+  

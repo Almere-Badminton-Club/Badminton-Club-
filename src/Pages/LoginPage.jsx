@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../Context/auth.context"
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(undefined);
+
   const navigate = useNavigate();
+
+   /*  UPDATE - get authenticateUser from the context */
+   const { storeToken, authenticateUser } = useContext(AuthContext);
 
   const handleEmail = (e) => setEmail(e.target.value);
   const handlePassword = (e) => setPassword(e.target.value);
@@ -16,37 +21,26 @@ const LoginPage = () => {
     const requestBody = { email, password };
 
     axios
-  .post(`${import.meta.env.VITE_API_URL}/auth/login`, requestBody)
-  .then((response) => {
-    console.log("Response from server:", response);
+      .post(`${import.meta.env.VITE_API_URL}/auth/login`, requestBody)
+      .then((response) => {
+        console.log("JWT token", response.data.authToken);
 
-    // Check if response and response.data exist
-    if (response && response.data) {
-      // Access the token property from the data object
-      const token = response.data.token;
+        // Save the token in the localStorage.      
+        storeToken(response.data.authToken);
 
-      // Save the token in the localStorage
-      storeToken(token);
-
-      // Verify the token by sending a request 
-      // to the server's JWT validation endpoint.
-      authenticateUser();
-      navigate("/");
-    } else {
-      // Handle the case when response or response.data is undefined
-      console.error("Response or response data is undefined:", response);
-      setErrorMessage("Error: Response or response data is undefined");
-    }
-  })
-  .catch((error) => {
-    // Check if error.response and error.response.data exist
-    const errorDescription = error.response?.data?.message || "An error occurred";
-    setErrorMessage(errorDescription);
-  });
+        // Verify the token by sending a request 
+        // to the server's JWT validation endpoint. 2345
+        authenticateUser();
+        navigate("/");
+      })
+      .catch((error) => {
+        const errorDescription = error.response.data.message || "An error occurred";
+        setErrorMessage(errorDescription);
+      });
   };
 
   return (
-    <section className=" text-center text-lg-start">
+    <section className="text-center text-lg-start">
       <div className="card mb-3">
         <div className="row g-0 d-flex align-items-center">
           <div className="col-lg-4 d-none d-lg-flex">
@@ -67,13 +61,13 @@ const LoginPage = () => {
                     onChange={handleEmail}
                     id="form2Example1"
                     className="form-control"
+                    placeholder="Enter your email"
                   />
                   <label className="form-label" htmlFor="form2Example1">
                     Email:
                   </label>
                 </div>
 
-                {/* <!-- Password input --> */}
                 <div className="form-outline mb-4">
                   <input
                     type="password"
@@ -82,22 +76,18 @@ const LoginPage = () => {
                     onChange={handlePassword}
                     id="form2Example2"
                     className="form-control"
+                    placeholder="Enter your password"
                   />
                   <label className="form-label" htmlFor="form2Example2">
                     Password
                   </label>
                 </div>
 
-                {/* // -- Submit button  */}
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-block mb-4"
-                  href="/"
-
-                >
-                  {" "}
+                <button type="submit" className="btn btn-primary btn-block mb-4">
                   Login
                 </button>
+
+                {errorMessage && <p className="text-danger">{errorMessage}</p>}
               </form>
             </div>
           </div>
