@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import HomePage from "./Pages/HomePage";
@@ -8,6 +7,7 @@ import LoginPage from "./Pages/LoginPage";
 import Registration from "./Components/Registration";
 import IsPrivate from "./Components/IsPrivate";
 import IsAnon from "./Components/IsAnon";
+import BookingTable from "./Components/BookingTable";
 
 function App() {
 
@@ -18,7 +18,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<IsAnon> <SignupPage /> </IsAnon>} />
           <Route path="/login" element={ <IsAnon> <LoginPage /> </IsAnon>  } />
-          <Route path="/registration" element={<Registration/> } />  
+          <Route path="/registration" element={<IsPrivate><Registration/></IsPrivate> } /> 
+          <Route path="/bookings" element={<BookingTable/>}/>
+
         </Routes>
         
     </>
