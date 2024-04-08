@@ -1,11 +1,11 @@
 import React from 'react'
-import SeatBooking from './SeatBooking';
+import BookingTable from './BookingTable';
 
 
 const Registration = () => {
   return (
    <> 
-   <SeatBooking /> 
+   <BookingTable/>
    </>
   )
 }
