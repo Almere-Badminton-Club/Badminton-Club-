@@ -1,9 +1,11 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../Context/auth.context"
+import { AuthContext } from "../Context/auth.context";
+
 
 const LoginPage = () => {
+  const { isLoggedIn } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(undefined);
