@@ -3,17 +3,17 @@
     text-align: center;
     margin: 50px auto;
     padding: 20px;
-    border: 1px solid #ddd;
-    max-width: 400px;
+    border: 1px solid #110808;
+    /* max-width: 400px; */
   }
   
   .date-picker-container {
     margin-bottom: 20px;
   }
   
-  .seats-container {
+  /* .seats-container {
     text-align: left;
-  }
+  } */
   
   .available {
     background-color: rgb(157, 206, 157);

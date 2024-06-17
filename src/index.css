@@ -32,7 +32,7 @@ h3 {
   margin: 20px 20px;
   margin-top: 20px;
   background-color: #c1cdd5;
-  color: white;
+  color: rgb(255, 255, 255);
   text-align: center;
   line-height: 100px;
 }
@@ -41,7 +41,7 @@ h3 {
 }
 
 .available {
-  background-color: rgb(188, 232, 188);
+  background-color: rgb(51, 167, 51);
   cursor: pointer;
 }
 

@@ -55,7 +55,7 @@ function AuthProviderWrapper(props) {
   }, [user]); // Listen for changes in the user state
 
   useEffect(() => {
-    console.log("User id:", {userId});
+    console.log("User id:", {user});
   }, [userId]);
 
   const removeToken = () => {
