@@ -85,7 +85,8 @@ const BookingTable = () => {
           updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
           updatedSeats[dayIndex][slotIndex] = {
             seatId,
-            bookingId
+            bookingId,
+            userName: user.user.name  // Add user's name to the booking information
           };
           setBookedSeats(updatedSeats);
           setBookingId(response.data.booking.bookingId);
@@ -103,7 +104,7 @@ const BookingTable = () => {
 
   useEffect(() => {
     const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
-      Array(slots.length).fill(false)
+      Array(slots.length).fill(null)
     );
     setBookedSeats(initialBookedSeats);
   }, [selectedDate]); // Update booked seats when selected date changes
@@ -190,7 +191,7 @@ const BookingTable = () => {
                     }
                   >
                     {bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]
-                      ? "Booked"
+                      ? bookedSeats[dayIndex][slotIndex].userName // Display user's name
                       : "Available"}
                   </td>
                 ))}
