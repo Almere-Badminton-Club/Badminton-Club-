@@ -5,13 +5,20 @@ import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import "../Styles/SeatBooking.css";
 import axios from "axios";
 import { AuthContext } from "../Context/auth.context";
+import { useNavigate } from "react-router-dom";
 
 const BookingTable = () => {
-  const { isLoggedIn, user, isLoading } = useContext(AuthContext);
+  const { isLoggedIn, user, isLoading} = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookedSeats, setBookedSeats] = useState([]);
   const [bookingId, setBookingId] = useState("");
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  }
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -54,7 +61,6 @@ const BookingTable = () => {
 
     // Generate a unique ObjectId-like value for seatId
     const seatId = generateObjectId();
-    console.log("seatId:", seatId);
 
     // Check if the seat is available before making a booking
     if (bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]) {
@@ -66,8 +72,10 @@ const BookingTable = () => {
       userId: user.user._id,
       seatId,
       bookingDate: selectedDate.toISOString(),
+      bookingId
     };
     console.log(requestBody);
+
     axios
       .post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
       .then((response) => {
@@ -75,9 +83,12 @@ const BookingTable = () => {
         if (response.status === 201) {
           const updatedSeats = [...bookedSeats];
           updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
-          updatedSeats[dayIndex][slotIndex] = true;
+          updatedSeats[dayIndex][slotIndex] = {
+            seatId,
+            bookingId
+          };
           setBookedSeats(updatedSeats);
-          setBookingId(response.data.bookingId);
+          setBookingId(response.data.booking.bookingId);
           console.log("Booking successful.");
         } else {
           console.error("Error booking seat. Status:", response.status);
@@ -98,14 +109,41 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  const slots = ["08:00 PM", "09:00 PM", "10:00 PM"];
+  const weekdays = ["Monday", "Tuesday", "Wednesday",  "Friday"];
+  const slots = [
+    " ",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W5",
+  ];
 
   return (
     <div className="seat-booking-container">
       <h1>Seat Booking</h1>
       <div className="date-picker-container">
-        <h2>Select a Date</h2>
+        <h2>Select Week Start Date</h2>
         <div className="date-navigation">
           <button onClick={handlePrevDay}>
             <BsArrowLeft />
@@ -121,10 +159,9 @@ const BookingTable = () => {
         </div>
       </div>
       <div className="slots-container">
-        <table>
+        <table className="table">
           <thead>
             <tr>
-              <th></th>
               {slots.map((slot, index) => (
                 <th key={index}>{slot}</th>
               ))}
