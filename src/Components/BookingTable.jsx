@@ -138,12 +138,20 @@ const BookingTable = () => {
     "W4",
     "W5",
   ];
+  const getWeekNumber = (date) => {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  };
+
+  const currentWeekNumber = getWeekNumber(selectedDate);
+  
 
   return (
     <div className="seat-booking-container">
-      <h1>Seat Booking</h1>
+      <h1>Reserve your Slot</h1>
       <div className="date-picker-container">
-        <h2>Select Week Start Date</h2>
+        <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">
           <button onClick={handlePrevDay}>
             <BsArrowLeft />
