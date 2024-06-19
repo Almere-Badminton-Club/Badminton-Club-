@@ -8,7 +8,7 @@ import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
 
 const BookingTable = () => {
-  const { isLoggedIn, user, isLoading} = useContext(AuthContext);
+  const { isLoggedIn, user, isLoading } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookedSeats, setBookedSeats] = useState([]);
   const [bookingId, setBookingId] = useState("");
@@ -18,7 +18,7 @@ const BookingTable = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  }
+  };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -72,7 +72,7 @@ const BookingTable = () => {
       userId: user.user._id,
       seatId,
       bookingDate: selectedDate.toISOString(),
-      bookingId
+      bookingId,
     };
     console.log(requestBody);
 
@@ -86,7 +86,7 @@ const BookingTable = () => {
           updatedSeats[dayIndex][slotIndex] = {
             seatId,
             bookingId,
-            userName: user.user.name  // Add user's name to the booking information
+            userName: user.user.name, // Add user's name to the booking information
           };
           setBookedSeats(updatedSeats);
           setBookingId(response.data.booking.bookingId);
@@ -110,35 +110,11 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = ["Monday", "Tuesday", "Wednesday",  "Friday"];
-  const slots = [
-    " ",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "16",
-    "17",
-    "18",
-    "19",
-    "20",
-    "W1",
-    "W2",
-    "W3",
-    "W4",
-    "W5",
-  ];
+  const weekdays = ["Monday", "Tuesday", "Wednesday", "Friday"];
+  const slots = Array.from({ length: 20 }, (_, index) =>
+    (index + 1).toString()
+  );
+
   const getWeekNumber = (date) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
     const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
@@ -146,11 +122,10 @@ const BookingTable = () => {
   };
 
   const currentWeekNumber = getWeekNumber(selectedDate);
-  
 
   return (
     <div className="seat-booking-container">
-      <h1 className="fade-in-title">Reserve your Slot</h1>
+      <h1 className="fade-in-title">Reserve your Spot</h1>
       <div className="date-picker-container">
         <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">

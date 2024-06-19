@@ -40,17 +40,11 @@
 
 /* Apply the animation to the h1 element */
 .color-change-title {
-  font-size: 3em;
+  font-size: 5em;
   text-align: center;
   animation: colorChange 4s infinite;
 }
 
-.custom-carousel-image {
-  width: 900px; /* Adjust the width as needed */
-  height: auto; /* Maintain aspect ratio */
-  object-fit: cover; /* Ensure the image covers the area */
-  margin: 0 auto; /* Center the image horizontally */
-}
 
 h1 {
   text-align: center;
