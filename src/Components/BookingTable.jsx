@@ -150,7 +150,7 @@ const BookingTable = () => {
 
   return (
     <div className="seat-booking-container">
-      <h1>Reserve your Slot</h1>
+      <h1 className="fade-in-title">Reserve your Slot</h1>
       <div className="date-picker-container">
         <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">
