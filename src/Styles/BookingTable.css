@@ -1,12 +1,17 @@
 .seat-booking-container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width:max-content;
+    margin: 20px auto;
     padding: 20px;
     font-family: Arial, sans-serif;
+    border: 1px solid #110808;
+    text-align: center;
   }
   
   .date-picker-container {
     margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   .date-navigation {
@@ -40,10 +45,14 @@
   }
   
   .available {
-    background-color: #e6f7ff; /* light blue */
+    background-color: #619a7c; /* light blue */
+    cursor: pointer;
+    color: white;
   }
   
   .booked {
-    background-color: #ffd6cc; /* light red */
+    background-color: #ed9e9e; /* light red */
+    cursor: not-allowed;
+    color:white;
   }
   

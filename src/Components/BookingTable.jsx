@@ -2,10 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import "../Styles/SeatBooking.css";
 import axios from "axios";
 import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
+import "../Styles/BookingTable.css"
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -110,7 +110,7 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = ["Monday", "Tuesday", "Wednesday", "Friday"];
+  const weekdays = [" ", "Monday", "Tuesday", "Wednesday", "Friday"];
   const slots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
@@ -143,21 +143,21 @@ const BookingTable = () => {
         </div>
       </div>
       <div className="slots-container">
-        <table className="table">
+        <table>
           <thead>
             <tr>
-              {slots.map((slot, index) => (
-                <th key={index}>{slot}</th>
+              {weekdays.map((day, index) => (
+                <th key={index}>{day}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {weekdays.map((day, dayIndex) => (
-              <tr key={dayIndex}>
-                <td>{day}</td>
-                {slots.map((slot, slotIndex) => (
+            {slots.map((slot, slotIndex) => (
+              <tr key={slotIndex}>
+                <td>{slot}</td>
+                {weekdays.map((day, dayIndex) => (
                   <td
-                    key={slotIndex}
+                    key={`${dayIndex}-${slotIndex}`}
                     onClick={() => handleSeatSelect(dayIndex, slotIndex)}
                     className={
                       bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]

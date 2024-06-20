@@ -57,7 +57,7 @@ const Navbar = () => {
             {isLoggedIn && (
               <>
                 <li className="nav-item">
-                  <span className="nav-link">Hi,{user.name}</span>
+                  <span className="nav-link">Hi, {user.user.name}</span>
                 </li>
                 <li className="nav-item ms-2">
                   <button
