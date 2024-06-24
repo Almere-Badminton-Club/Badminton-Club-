@@ -72,9 +72,7 @@ const BookingTable = () => {
       userId: user.user._id,
       seatId,
       bookingDate: selectedDate.toISOString(),
-      bookingId,
     };
-    console.log(requestBody);
 
     axios
       .post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
@@ -85,11 +83,11 @@ const BookingTable = () => {
           updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
           updatedSeats[dayIndex][slotIndex] = {
             seatId,
-            bookingId,
+            bookingId: response.data.booking.bookingId, // Update with correct booking ID
             userName: user.user.name, // Add user's name to the booking information
           };
           setBookedSeats(updatedSeats);
-          setBookingId(response.data.booking.bookingId);
+          setBookingId(response.data.booking.bookingId); // Set booking ID from response
           console.log("Booking successful.");
         } else {
           console.error("Error booking seat. Status:", response.status);
