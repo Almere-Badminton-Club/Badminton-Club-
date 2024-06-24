@@ -9,13 +9,13 @@
   }
   
   .carousel-caption {
-    background: rgba(0, 0, 0, 0.2); /* Semi-transparent background */
+    background: rgba(0, 0, 0, 0); /* Semi-transparent background */
     padding: 10px;
     border-radius: 5px;
     bottom: 20px; /* Adjust position as needed */
     left: 0;
     right: 0;
-    margin: auto;
+    margin: 290px;
     max-width: 30%;
     /* size: 20px; */
   }
@@ -23,6 +23,6 @@
   .carousel-caption h5,
   .carousel-caption p {
     margin: 10px; /* Remove margin */
-    color: #fff;
-  }
+    color: #bed7f5;
+font-size: 40px;  }
   

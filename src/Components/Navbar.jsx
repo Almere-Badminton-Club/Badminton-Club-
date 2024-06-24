@@ -49,7 +49,7 @@ const Navbar = () => {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/registration">
-                Registration
+                Booking
               </Link>
             </li>
           </ul>

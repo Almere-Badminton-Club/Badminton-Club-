@@ -5,7 +5,7 @@ import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import axios from "axios";
 import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
-import "../Styles/BookingTable.css"
+import "../Styles/BookingTable.css";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -110,10 +110,8 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = [" ", "Monday", "Tuesday", "Wednesday", "Friday"];
-  const slots = Array.from({ length: 20 }, (_, index) =>
-    (index + 1).toString()
-  );
+  const weekdays = ["Monday", "Tuesday", "Wednesday", "Friday"];
+  const slots = Array.from({ length: 20 }, (_, index) => (index + 1).toString());
 
   const getWeekNumber = (date) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
@@ -122,6 +120,16 @@ const BookingTable = () => {
   };
 
   const currentWeekNumber = getWeekNumber(selectedDate);
+
+  const chunkArray = (array, chunkSize) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+  };
+
+  const chunkedSlots = chunkArray(slots, 4);
 
   return (
     <div className="seat-booking-container">
@@ -146,31 +154,41 @@ const BookingTable = () => {
         <table>
           <thead>
             <tr>
+              <th></th>
               {weekdays.map((day, index) => (
                 <th key={index}>{day}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {slots.map((slot, slotIndex) => (
-              <tr key={slotIndex}>
-                <td>{slot}</td>
-                {weekdays.map((day, dayIndex) => (
-                  <td
-                    key={`${dayIndex}-${slotIndex}`}
-                    onClick={() => handleSeatSelect(dayIndex, slotIndex)}
-                    className={
-                      bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]
-                        ? "booked"
-                        : "available"
-                    }
-                  >
-                    {bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]
-                      ? bookedSeats[dayIndex][slotIndex].userName // Display user's name
-                      : "Available"}
-                  </td>
+            {chunkedSlots.map((chunk, chunkIndex) => (
+              <React.Fragment key={chunkIndex}>
+                {chunk.map((slot, slotIndex) => (
+                  <tr key={slotIndex}>
+                    <td>{slot}</td>
+                    {weekdays.map((day, dayIndex) => (
+                      <td
+                        key={`${dayIndex}-${chunkIndex * 4 + slotIndex}`}
+                        onClick={() =>
+                          handleSeatSelect(dayIndex, chunkIndex * 4 + slotIndex)
+                        }
+                        className={
+                          bookedSeats[dayIndex] &&
+                          bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                            ? "booked"
+                            : "available"
+                        }
+                      >
+                        {bookedSeats[dayIndex] &&
+                        bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                              .userName // Display user's name
+                          : "Available"}
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
