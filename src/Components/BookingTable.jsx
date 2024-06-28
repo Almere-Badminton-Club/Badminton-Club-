@@ -13,6 +13,7 @@ const BookingTable = () => {
   const [bookedSeats, setBookedSeats] = useState([]);
   const [bookingId, setBookingId] = useState("");
   const [error, setError] = useState(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   const navigate = useNavigate();
 
@@ -56,6 +57,7 @@ const BookingTable = () => {
     }
     if (!isLoggedIn) {
       console.log("User not logged in or user ID not available.");
+      setShowLoginPopup(true);
       return;
     }
 
@@ -191,6 +193,15 @@ const BookingTable = () => {
           </tbody>
         </table>
       </div>
+      {showLoginPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h2>Please Log In</h2>
+            <p>You need to log in to book a slot.</p>
+            <button onClick={() => setShowLoginPopup(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -10,7 +10,7 @@ const Navbar = () => {
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
           <img
-            src="https://static.wixstatic.com/media/a5658f_0d56118c6e1f4c1b8692a3648f62efb4~mv2.png/v1/crop/x_0,y_142,w_1000,h_681/fill/w_560,h_380,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/ABC.png"
+            src="src/Images/logo.png"
             alt="logo"
             height="75vw"
           />

@@ -3,6 +3,7 @@ import BookingTable from "../Components/BookingTable";
 import CarouselComponent from "../Components/CarouselComponent";
 import MyMapComponent from "../Components/mapContainerStyle";
 import "../Styles/mapContainerStyle.css";
+import Footer from "../Components/Footer";
 
 const HomePage = () => {
   return (
@@ -16,6 +17,7 @@ const HomePage = () => {
         </div>
       </div>
       <BookingTable />
+      <Footer />
     </>
   );
 };
