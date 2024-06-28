@@ -33,15 +33,7 @@ const Navbar = () => {
                 Home
               </Link>
             </li>
-            {!isLoggedIn && (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
-                    Login
-                  </Link>
-                </li>
-              </>
-            )}
+            
             <li className="nav-item">
               <Link className="nav-link" to="/aboutUs">
                 About ABC
@@ -66,6 +58,15 @@ const Navbar = () => {
                   >
                     Logout
                   </button>
+                </li>
+              </>
+            )}
+            {!isLoggedIn && (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">
+                    Login
+                  </Link>
                 </li>
               </>
             )}

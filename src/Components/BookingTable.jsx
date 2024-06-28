@@ -24,6 +24,7 @@ const BookingTable = () => {
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setBookedSeats([]);
+    setError(null); // Clear any previous error messages
   };
 
   const handlePrevDay = () => {
@@ -31,6 +32,7 @@ const BookingTable = () => {
     prevDay.setDate(selectedDate.getDate() - 1);
     setSelectedDate(prevDay);
     setBookedSeats([]);
+    setError(null); // Clear any previous error messages
   };
 
   const handleNextDay = () => {
@@ -38,6 +40,7 @@ const BookingTable = () => {
     nextDay.setDate(selectedDate.getDate() + 1);
     setSelectedDate(nextDay);
     setBookedSeats([]);
+    setError(null); // Clear any previous error messages
   };
 
   const generateObjectId = () => {
@@ -61,12 +64,24 @@ const BookingTable = () => {
       return;
     }
 
+    // Check if the user has already booked a slot on the same day
+    for (let i = 0; i < bookedSeats[dayIndex].length; i++) {
+      if (
+        bookedSeats[dayIndex][i] &&
+        bookedSeats[dayIndex][i].userId === user.user._id
+      ) {
+        setError("You can only book one slot per day.");
+        return;
+      }
+    }
+
     // Generate a unique ObjectId-like value for seatId
     const seatId = generateObjectId();
 
     // Check if the seat is available before making a booking
     if (bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]) {
       console.log("Seat is already booked.");
+      setError("Seat is already booked.");
       return;
     }
 
@@ -86,11 +101,13 @@ const BookingTable = () => {
           updatedSeats[dayIndex][slotIndex] = {
             seatId,
             bookingId: response.data.booking.bookingId, // Update with correct booking ID
+            userId: user.user._id, // Add user's ID to the booking information
             userName: user.user.name, // Add user's name to the booking information
           };
           setBookedSeats(updatedSeats);
           setBookingId(response.data.booking.bookingId); // Set booking ID from response
           console.log("Booking successful.");
+          setError(null); // Clear any previous error messages
         } else {
           console.error("Error booking seat. Status:", response.status);
           setError("Error booking seat. Please try again.");
@@ -200,6 +217,12 @@ const BookingTable = () => {
             <p>You need to log in to book a slot.</p>
             <button onClick={() => setShowLoginPopup(false)}>Close</button>
           </div>
+        </div>
+      )}
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => setError(null)}>Close</button>
         </div>
       )}
     </div>
