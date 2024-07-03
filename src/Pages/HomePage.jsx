@@ -8,7 +8,7 @@ import Footer from "../Components/Footer";
 const HomePage = () => {
   return (
     <>
-      <h1 className="color-change-title ">Welcome to Smashers Connect Club</h1>
+      <h1 className="color-change-title ">Welcome to Smashers Badminton Club</h1>
       <CarouselComponent />
       <div>
       <h3 style={{ textAlign: 'center', marginTop: '20px' }}>Our Location</h3>

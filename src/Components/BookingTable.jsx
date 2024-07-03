@@ -88,8 +88,11 @@ const BookingTable = () => {
     const requestBody = {
       userId: user.user._id,
       seatId,
-      bookingDate: selectedDate.toISOString(),
+      bookingDate: new Date().toISOString(),
+      dayIndex,
+      slotIndex
     };
+    console.log("Request Body", requestBody);
 
     axios
       .post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
@@ -127,8 +130,15 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = ["Monday", "Tuesday", "Wednesday", "Friday"];
-  const slots = Array.from({ length: 20 }, (_, index) => (index + 1).toString());
+  const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const regularSlots = Array.from({ length: 20 }, (_, index) =>
+    (index + 1).toString()
+  );
+  const waitingListSlots = Array.from(
+    { length: 5 },
+    (_, index) => `W${index + 1}`
+  );
+  const slots = [...regularSlots, ...waitingListSlots];
 
   const getWeekNumber = (date) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
