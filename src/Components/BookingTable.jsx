@@ -130,7 +130,7 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const weekdays = ["Monday 8.30-10pm", "Tuesday 9-10.30pm", "Wednesday 8.30-10pm",  "Friday 9.30-11pm"];
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
