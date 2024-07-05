@@ -7,7 +7,7 @@ const CarouselComponent = () => {
     <div id="carouselExample" className="carousel slide" data-bs-ride="carousel">
       <div className="carousel-inner">
         <div className="carousel-item active">
-          <img src="src/Images/image1.avif" className="d-block w-100" alt="First Slide" />
+          <img src="src/Images/pexels-photo-2202685.jpeg" className="d-block w-100" alt="First Slide" />
           <div className="carousel-caption d-none d-md-block">
             <h5>JOIN US & PLAY</h5>
             <p>Elevate Your Game</p>
