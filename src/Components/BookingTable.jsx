@@ -6,25 +6,33 @@ import axios from "axios";
 import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
+import { useBookingContext } from "../Context/BookingContext";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
+  const {
+    bookedSeats,
+    setBookedSeats,
+    bookingId,
+    setBookingId,
+    error,
+    setError,
+    resetBookingState,
+  } = useBookingContext();
+  
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [bookedSeats, setBookedSeats] = useState([]);
-  const [bookingId, setBookingId] = useState("");
-  const [error, setError] = useState(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Your handleSubmit logic here
   };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setBookedSeats([]);
-    setError(null); // Clear any previous error messages
+    setError(null);
   };
 
   const handlePrevDay = () => {
@@ -32,7 +40,7 @@ const BookingTable = () => {
     prevDay.setDate(selectedDate.getDate() - 1);
     setSelectedDate(prevDay);
     setBookedSeats([]);
-    setError(null); // Clear any previous error messages
+    setError(null);
   };
 
   const handleNextDay = () => {
@@ -40,7 +48,7 @@ const BookingTable = () => {
     nextDay.setDate(selectedDate.getDate() + 1);
     setSelectedDate(nextDay);
     setBookedSeats([]);
-    setError(null); // Clear any previous error messages
+    setError(null);
   };
 
   const generateObjectId = () => {
@@ -192,6 +200,7 @@ const BookingTable = () => {
           <button onClick={() => setError(null)}>Close</button>
         </div>
       )}
+      
       <div className="slots-container">
         <table>
           <thead>
@@ -227,29 +236,22 @@ const BookingTable = () => {
                               .userName // Display user's name
                           : "Available"}
                       </td>
+                      
                     ))}
+                    
                   </tr>
+                  
                 ))}
               </React.Fragment>
             ))}
+            
           </tbody>
         </table>
+        <form onSubmit={handleSubmit}>
+        <button type="Book Slot">Save Booking</button>
+      </form>
       </div>
-      {showLoginPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <h2>Please Log In</h2>
-            <p>You need to log in to book a slot.</p>
-            <button onClick={() => setShowLoginPopup(false)}>Close</button>
-          </div>
-        </div>
-      )}
-      {error && (
-        <div className="error-message">
-          <p>{error}</p>
-          <button onClick={() => setError(null)}>Close</button>
-        </div>
-      )}
+      
     </div>
   );
 };
