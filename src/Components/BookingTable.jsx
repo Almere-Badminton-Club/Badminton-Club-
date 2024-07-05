@@ -177,6 +177,21 @@ const BookingTable = () => {
           </button>
         </div>
       </div>
+      {showLoginPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h2>Please Log In</h2>
+            <p>You need to log in to book a slot.</p>
+            <button onClick={() => setShowLoginPopup(false)}>Close</button>
+          </div>
+        </div>
+      )}
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => setError(null)}>Close</button>
+        </div>
+      )}
       <div className="slots-container">
         <table>
           <thead>
