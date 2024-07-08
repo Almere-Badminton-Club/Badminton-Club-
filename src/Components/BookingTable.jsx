@@ -27,7 +27,11 @@ const BookingTable = () => {
   // Function to fetch bookings
   const fetchBookings = (date) => {
     axios
-      .get(`${import.meta.env.VITE_API_URL}/bookings?date=${date.toISOString().split('T')[0]}`)
+      .get(
+        `${import.meta.env.VITE_API_URL}/bookings?date=${
+          date.toISOString().split("T")[0]
+        }`
+      )
       .then((response) => {
         console.log("Response from fetchBookings", response);
         const updatedBookings = response.data.bookings; // Adjust based on your API response structure
@@ -35,7 +39,7 @@ const BookingTable = () => {
         const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
           Array(slots.length).fill(null)
         );
-        updatedBookings.forEach(booking => {
+        updatedBookings.forEach((booking) => {
           const { dayIndex, slotIndex, userId, userName } = booking;
           initialBookedSeats[dayIndex][slotIndex] = { userId, userName };
         });
@@ -63,19 +67,19 @@ const BookingTable = () => {
   };
 
   // Handle navigation to previous day
-  const handlePrevDay = () => {
-    const prevDay = new Date(selectedDate);
-    prevDay.setDate(selectedDate.getDate() - 1);
-    setSelectedDate(prevDay);
+  const handlePrevWeek = () => {
+    const prevWeek = new Date(selectedDate);
+    prevWeek.setDate(selectedDate.getDate() - 7);
+    setSelectedDate(prevWeek);
     setBookedSeats([]);
     setError(null);
   };
 
   // Handle navigation to next day
-  const handleNextDay = () => {
-    const nextDay = new Date(selectedDate);
-    nextDay.setDate(selectedDate.getDate() + 1);
-    setSelectedDate(nextDay);
+  const handleNextWeek = () => {
+    const nextWeek = new Date(selectedDate);
+    nextWeek.setDate(selectedDate.getDate() + 7);
+    setSelectedDate(nextWeek);
     setBookedSeats([]);
     setError(null);
   };
@@ -128,7 +132,7 @@ const BookingTable = () => {
       bookingDate: new Date().toISOString(),
       dayIndex,
       slotIndex,
-      userName: user.user.name
+      userName: user.user.name,
     };
     console.log("Request Body", requestBody);
 
@@ -175,10 +179,42 @@ const BookingTable = () => {
 
   const totalSeats = 20;
   const weekdays = [
-    { name: "Monday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 1), timing: "8.30-10pm" },
-    { name: "Tuesday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 2), timing: "9-10.30pm" },
-    { name: "Wednesday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 3), timing: "8.30-10pm" },
-    { name: "Friday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 5), timing: "9.30-11pm" }
+    {
+      name: "Monday",
+      date: new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate() - selectedDate.getDay() + 1
+      ),
+      timing: "8.30-10pm",
+    },
+    {
+      name: "Tuesday",
+      date: new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate() - selectedDate.getDay() + 2
+      ),
+      timing: "9-10.30pm",
+    },
+    {
+      name: "Wednesday",
+      date: new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate() - selectedDate.getDay() + 3
+      ),
+      timing: "8.30-10pm",
+    },
+    {
+      name: "Friday",
+      date: new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate() - selectedDate.getDay() + 5
+      ),
+      timing: "9.30-11pm",
+    },
   ];
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
@@ -213,15 +249,11 @@ const BookingTable = () => {
       <div className="date-picker-container">
         <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">
-          <button onClick={handlePrevDay}>
+          <button onClick={handlePrevWeek}>
             <BsArrowLeft />
           </button>
-          <DatePicker
-            selected={selectedDate}
-            onChange={handleDateChange}
-            dateFormat="dd/MM/yyyy"
-          />
-          <button onClick={handleNextDay}>
+         
+          <button onClick={handleNextWeek}>
             <BsArrowRight />
           </button>
         </div>
@@ -249,7 +281,7 @@ const BookingTable = () => {
               <th></th>
               {weekdays.map((day, index) => (
                 <th key={index}>
-                  {day.name} - {day.date.toLocaleDateString()} <br /> {/* Adjust date format as needed */}
+                  {day.name} - {day.date.toLocaleDateString()} <br />
                   {day.timing}
                 </th>
               ))}
@@ -287,7 +319,7 @@ const BookingTable = () => {
             ))}
           </tbody>
         </table>
-        <form >
+        <form>
           <button type="submit">Book Slot</button>
         </form>
       </div>
