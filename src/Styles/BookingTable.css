@@ -45,14 +45,14 @@
   }
   
   .available {
-    background-color: #619a7c; /* light blue */
+    background-color: #9ab0a4; /* light blue */
     cursor: pointer;
     color: white;
   }
   
   .booked {
-    background-color: #ed9e9e; /* light red */
+    background-color: #f7b2b2; /* light red */
     cursor: not-allowed;
-    color:white;
+    color:rgb(13, 12, 12);
   }
   

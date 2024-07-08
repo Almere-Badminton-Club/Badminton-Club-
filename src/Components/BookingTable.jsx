@@ -19,22 +19,50 @@ const BookingTable = () => {
     setError,
     resetBookingState,
   } = useBookingContext();
-  
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Your handleSubmit logic here
+  // Function to fetch bookings
+  const fetchBookings = (date) => {
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/bookings?date=${date.toISOString().split('T')[0]}`)
+      .then((response) => {
+        console.log("Response from fetchBookings", response);
+        const updatedBookings = response.data.bookings; // Adjust based on your API response structure
+        // Update bookedSeats state with the fetched data
+        const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
+          Array(slots.length).fill(null)
+        );
+        updatedBookings.forEach(booking => {
+          const { dayIndex, slotIndex, userId, userName } = booking;
+          initialBookedSeats[dayIndex][slotIndex] = { userId, userName };
+        });
+        setBookedSeats(initialBookedSeats);
+        console.log("Bookings fetched successfully:", initialBookedSeats);
+      })
+      .catch((error) => {
+        console.error("Error fetching bookings:", error);
+        setError("Error fetching bookings. Please try again.");
+      });
   };
 
+  // Fetch bookings on component mount and whenever isLoggedIn changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchBookings(selectedDate);
+    }
+  }, [isLoggedIn, selectedDate]);
+
+  // Handle change in date
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setBookedSeats([]);
     setError(null);
   };
 
+  // Handle navigation to previous day
   const handlePrevDay = () => {
     const prevDay = new Date(selectedDate);
     prevDay.setDate(selectedDate.getDate() - 1);
@@ -43,6 +71,7 @@ const BookingTable = () => {
     setError(null);
   };
 
+  // Handle navigation to next day
   const handleNextDay = () => {
     const nextDay = new Date(selectedDate);
     nextDay.setDate(selectedDate.getDate() + 1);
@@ -98,7 +127,8 @@ const BookingTable = () => {
       seatId,
       bookingDate: new Date().toISOString(),
       dayIndex,
-      slotIndex
+      slotIndex,
+      userName: user.user.name
     };
     console.log("Request Body", requestBody);
 
@@ -114,20 +144,26 @@ const BookingTable = () => {
             bookingId: response.data.booking.bookingId, // Update with correct booking ID
             userId: user.user._id, // Add user's ID to the booking information
             userName: user.user.name, // Add user's name to the booking information
+            bookingDate: new Date().toISOString(),
           };
           setBookedSeats(updatedSeats);
+          console.log("Updated bookedSeats after booking:", updatedSeats);
           setBookingId(response.data.booking.bookingId); // Set booking ID from response
           console.log("Booking successful.");
-          setError(null); // Clear any previous error messages
+          setError(null);
+
+          const bookingDate =
+            requestBody.bookingDate || new Date().toISOString().split("T")[0];
+          fetchBookings(new Date(bookingDate)); // Fetch updated bookings after successful booking
         } else {
           console.error("Error booking seat. Status:", response.status);
           setError("Error booking seat. Please try again.");
         }
-      })
-      .catch((error) => {
-        console.error("Error booking seat:", error);
-        setError("Error booking seat. Please try again.");
       });
+    // .catch((error) => {
+    //   console.error("Error booking seat:", error);
+    //   setError("Error booking seat. Please try again.");
+    // });
   };
 
   useEffect(() => {
@@ -138,7 +174,12 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = ["Monday 8.30-10pm", "Tuesday 9-10.30pm", "Wednesday 8.30-10pm",  "Friday 9.30-11pm"];
+  const weekdays = [
+    { name: "Monday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 1), timing: "8.30-10pm" },
+    { name: "Tuesday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 2), timing: "9-10.30pm" },
+    { name: "Wednesday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 3), timing: "8.30-10pm" },
+    { name: "Friday", date: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 5), timing: "9.30-11pm" }
+  ];
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
@@ -200,14 +241,17 @@ const BookingTable = () => {
           <button onClick={() => setError(null)}>Close</button>
         </div>
       )}
-      
+
       <div className="slots-container">
         <table>
           <thead>
             <tr>
               <th></th>
               {weekdays.map((day, index) => (
-                <th key={index}>{day}</th>
+                <th key={index}>
+                  {day.name} - {day.date.toLocaleDateString()} <br /> {/* Adjust date format as needed */}
+                  {day.timing}
+                </th>
               ))}
             </tr>
           </thead>
@@ -236,22 +280,17 @@ const BookingTable = () => {
                               .userName // Display user's name
                           : "Available"}
                       </td>
-                      
                     ))}
-                    
                   </tr>
-                  
                 ))}
               </React.Fragment>
             ))}
-            
           </tbody>
         </table>
-        <form onSubmit={handleSubmit}>
-        <button type="Book Slot">Save Booking</button>
-      </form>
+        <form >
+          <button type="submit">Book Slot</button>
+        </form>
       </div>
-      
     </div>
   );
 };
