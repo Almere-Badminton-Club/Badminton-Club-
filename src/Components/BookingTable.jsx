@@ -25,14 +25,19 @@ const BookingTable = () => {
 
   // Function to fetch bookings
   const fetchBookings = (date) => {
+    const formattedDate = date.toISOString().split("T")[0];
+    console.log("fetching bookings for date:", formattedDate);
+
     axios
-      .get(
-        `${import.meta.env.VITE_API_URL}/bookings?date=${
-          date.toISOString().split("T")[0]
-        }`
-      )
+      .get(`${import.meta.env.VITE_API_URL}/bookings?date=${formattedDate}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      })
       .then((response) => {
-        console.log("Response from fetchBookings", response);
+        console.log("fetched Bookings", response.data);
         const updatedBookings = response.data.bookings; // Adjust based on your API response structure
         // Update bookedSeats state with the fetched data
         const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
@@ -42,8 +47,8 @@ const BookingTable = () => {
           const { dayIndex, slotIndex, userId, userName } = booking;
           initialBookedSeats[dayIndex][slotIndex] = { userId, userName, date };
         });
-        setBookedSeats(initialBookedSeats);
-        console.log("Bookings fetched successfully:", initialBookedSeats);
+        setBookedSeats(response.data.bookings);
+        console.log("Bookings fetched successfully:", response.data.bookings);
       })
       .catch((error) => {
         console.error("Error fetching bookings:", error);
@@ -132,7 +137,7 @@ const BookingTable = () => {
       return date;
     }
 
-    const startDate = new Date('2024-07-15');
+    const startDate = new Date("2024-07-15");
 
     const requestBody = {
       userId: user.user._id,
@@ -260,7 +265,7 @@ const BookingTable = () => {
           <button onClick={handlePrevWeek}>
             <BsArrowLeft />
           </button>
-         
+
           <button onClick={handleNextWeek}>
             <BsArrowRight />
           </button>
