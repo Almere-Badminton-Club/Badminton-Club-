@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import axios from "axios";
@@ -41,7 +40,7 @@ const BookingTable = () => {
         );
         updatedBookings.forEach((booking) => {
           const { dayIndex, slotIndex, userId, userName } = booking;
-          initialBookedSeats[dayIndex][slotIndex] = { userId, userName };
+          initialBookedSeats[dayIndex][slotIndex] = { userId, userName, date };
         });
         setBookedSeats(initialBookedSeats);
         console.log("Bookings fetched successfully:", initialBookedSeats);
@@ -126,10 +125,19 @@ const BookingTable = () => {
       return;
     }
 
+    // Function to get the bookng date based on the dayIndex and the start of the week
+    function getBookingDate(dayIndex, startDate) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + dayIndex);
+      return date;
+    }
+
+    const startDate = new Date('2024-07-15');
+
     const requestBody = {
       userId: user.user._id,
       seatId,
-      bookingDate: new Date().toISOString(),
+      bookingDate: getBookingDate(dayIndex, startDate).toISOString(),
       dayIndex,
       slotIndex,
       userName: user.user.name,
@@ -148,7 +156,7 @@ const BookingTable = () => {
             bookingId: response.data.booking.bookingId, // Update with correct booking ID
             userId: user.user._id, // Add user's ID to the booking information
             userName: user.user.name, // Add user's name to the booking information
-            bookingDate: new Date().toISOString(),
+            bookingDate: getBookingDate(dayIndex, startDate).toISOString(),
           };
           setBookedSeats(updatedSeats);
           console.log("Updated bookedSeats after booking:", updatedSeats);
