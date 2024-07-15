@@ -1,3 +1,135 @@
+## Frontend Installation Guide
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+- **Node.js** (version 14.x or later)
+- **npm** (comes with Node.js) or **yarn** (alternative package manager)
+
+### Clone the Repository
+
+First, clone the repository to your local machine using Git.
+
+```bash
+git clone https://github.com/yourusername/yourproject.git
+cd yourproject
+```
+
+### Navigate to the Frontend Directory
+
+If your repository contains both backend and frontend code, navigate to the frontend directory.
+
+```bash
+cd frontend
+```
+
+### Install Dependencies
+
+Install the necessary dependencies for the project. You can use either npm or yarn.
+
+Using npm:
+
+```bash
+npm install
+```
+
+Using yarn:
+
+```bash
+yarn install
+```
+
+## Install Axios and Bootstrap
+Axios and Bootstrap are required dependencies for this project. Install them using npm or yarn.
+
+### Using npm:
+
+```bash
+npm install axios bootstrap
+```
+
+### Using yarn:
+```bash
+yarn add axios bootstrap
+```
+
+### Import Bootstrap in Your Project
+To use Bootstrap styles in your project, import Bootstrap CSS in  main.jsx file.
+
+In src/main.jsx 
+
+import "bootstrap/dist/css/bootstrap.css";
+
+
+### Environment Variables
+
+Create a `.env` file in the root of the frontend directory to store your environment variables. Add the following line to your `.env` file:
+
+```bash
+VITE_API_URL=http://localhost:5000
+```
+
+
+### Run the Development Server
+
+Start the development server to run the project locally. You can use either npm or yarn.
+
+Using npm:
+
+```bash
+npm run dev
+```
+
+Using yarn:
+
+```bash
+yarn dev
+```
+
+This will start the development server, and you should be able to access the project in your browser at `http://localhost:5173`.
+
+
+
+### Troubleshooting
+
+- **Port Conflicts**: If you encounter a port conflict, you can change the port by adding a `VITE_PORT` variable to your `.env` file:
+  ```
+  VITE_PORT=4000
+  ```
+  Then run the development server again.
+
+- **API Issues**: Ensure that your backend server is running and the `VITE_API_URL` in your `.env` file points to the correct API endpoint.
+
+### Folder Structure
+
+A quick overview of the frontend folder structure:
+
+```
+frontend/
+├── public/  
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── Context/
+│   ├── Images/
+│   ├── Pages/
+│   ├── Styles/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── index.css
+│   ├── main.jsx
+├── .env
+├── .gitignore
+├── index.html
+├── package-lock.json
+├── package.json
+├── README.md
+└── vite.config.js
+```
+
+### Description of Project
+
 Frontend (React):
 Design the UI:
 
