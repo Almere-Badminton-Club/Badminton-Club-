@@ -2,7 +2,7 @@ import axios from "axios";
 import { apiUrl } from "../config/constants";
 
 // Function to fetch bookings
-export const fetchBookings = async (date) => {
+export const fetchBookingdata = async (date) => {
   try {
     const formattedDate = date.toISOString().split("T")[0];
     const response = await axios.get(
@@ -15,17 +15,17 @@ export const fetchBookings = async (date) => {
         },
       }
     );
-    return response.data.bookings;
+    return response;
   } catch (error) {
     throw new Error("Error fetching bookings");
   }
 };
 
 // create bookings - post  call
-export const createBooking = async (bookingData) => {
+export const createBookingForUser = async (bookingData) => {
   try {
     const response = await axios.post(`${apiUrl}/bookings`, bookingData);
-    return response.data.booking;
+    return response;
   } catch (error) {
     throw new Error("Error creating booking");
   }
