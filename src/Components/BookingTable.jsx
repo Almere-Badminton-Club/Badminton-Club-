@@ -38,25 +38,32 @@ const BookingTable = () => {
       })
       .then((response) => {
         console.log("fetched Bookings", response.data);
-        const updatedBookings = response.data.bookings; // Adjust based on your API response structure
-        // Update bookedSeats state with the fetched data
-        const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
+        const updatedSeats = Array.from({ length: weekdays.length }, () =>
           Array(slots.length).fill(null)
         );
-        updatedBookings.forEach((booking) => {
-          const { dayIndex, slotIndex, userId, userName } = booking;
-          initialBookedSeats[dayIndex][slotIndex] = { userId, userName, date };
+
+        response.data.bookings.forEach((booking) => {
+          const { dayIndex, slotIndex, seatId, bookingId, userId, userName, bookingDate } = booking;
+          updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
+          updatedSeats[dayIndex][slotIndex] = {
+            seatId,
+            bookingId,
+            userId,
+            userName,
+            bookingDate,
+          };
         });
-        setBookedSeats(response.data.bookings);
-        console.log("Bookings fetched successfully:", response.data.bookings);
+
+        setBookedSeats(updatedSeats);
+        console.log("Updated bookedSeats:", updatedSeats);
       })
-      .catch((error) => {
-        console.error("Error fetching bookings:", error);
-        setError("Error fetching bookings. Please try again.");
-      });
+      // .catch((error) => {
+      //   console.error("Error fetching bookings:", error);
+      //   setError("Error fetching bookings. Please try again.");
+      // });
   };
 
-  // Fetch bookings on component mount and whenever isLoggedIn changes
+  // Fetch bookings on component mount and whenever isLoggedIn or selectedDate changes
   useEffect(() => {
     if (isLoggedIn) {
       fetchBookings(selectedDate);
@@ -68,24 +75,27 @@ const BookingTable = () => {
     setSelectedDate(date);
     setBookedSeats([]);
     setError(null);
+    fetchBookings(date);
   };
 
-  // Handle navigation to previous day
+  // Handle navigation to previous week
   const handlePrevWeek = () => {
     const prevWeek = new Date(selectedDate);
     prevWeek.setDate(selectedDate.getDate() - 7);
     setSelectedDate(prevWeek);
     setBookedSeats([]);
     setError(null);
+    fetchBookings(prevWeek);
   };
 
-  // Handle navigation to next day
+  // Handle navigation to next week
   const handleNextWeek = () => {
     const nextWeek = new Date(selectedDate);
     nextWeek.setDate(selectedDate.getDate() + 7);
     setSelectedDate(nextWeek);
     setBookedSeats([]);
     setError(null);
+    fetchBookings(nextWeek);
   };
 
   const generateObjectId = () => {
@@ -130,7 +140,7 @@ const BookingTable = () => {
       return;
     }
 
-    // Function to get the bookng date based on the dayIndex and the start of the week
+    // Function to get the booking date based on the dayIndex and the start of the week
     function getBookingDate(dayIndex, startDate) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + dayIndex);
@@ -265,7 +275,6 @@ const BookingTable = () => {
           <button onClick={handlePrevWeek}>
             <BsArrowLeft />
           </button>
-
           <button onClick={handleNextWeek}>
             <BsArrowRight />
           </button>
@@ -286,7 +295,6 @@ const BookingTable = () => {
           <button onClick={() => setError(null)}>Close</button>
         </div>
       )}
-
       <div className="slots-container">
         <table>
           <thead>
@@ -301,11 +309,11 @@ const BookingTable = () => {
             </tr>
           </thead>
           <tbody>
-            {chunkedSlots.map((chunk, chunkIndex) => (
+          {chunkedSlots.map((chunk, chunkIndex) => (
               <React.Fragment key={chunkIndex}>
                 {chunk.map((slot, slotIndex) => (
                   <tr key={slotIndex}>
-                    <td>{slot}</td>
+                    <td>{slot}</td>          
                     {weekdays.map((day, dayIndex) => (
                       <td
                         key={`${dayIndex}-${chunkIndex * 4 + slotIndex}`}
@@ -321,8 +329,7 @@ const BookingTable = () => {
                       >
                         {bookedSeats[dayIndex] &&
                         bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                              .userName // Display user's name
+                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex].userName // Display user's name
                           : "Available"}
                       </td>
                     ))}
