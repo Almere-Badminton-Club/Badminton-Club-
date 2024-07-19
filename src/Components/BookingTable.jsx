@@ -15,7 +15,8 @@ import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
-import { getRandomId, weekdaysdata } from "../Utils/utils";
+import useRandomId from "../Utils/useRandomId";
+import useWeekdaysdata from "../Utils/useWeekdaysdata";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -31,8 +32,10 @@ const BookingTable = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  
   const navigate = useNavigate();
-  const fetchweekdays = weekdaysdata(selectedDate);
+  // const fetchweekdays = weekdaysdata(selectedDate);
+  const fetchweekdays = useWeekdaysdata(selectedDate);
   
 
   // Function to fetch bookings
@@ -70,8 +73,7 @@ const BookingTable = () => {
 
   // Fetch bookings on component mount and whenever isLoggedIn or selectedDate changes
   useEffect(() => {
-    if (isLoggedIn) {
-      
+    if (isLoggedIn) {     
       console.log('Weekdays', fetchweekdays);
       fetchBookings(selectedDate);
 
@@ -122,7 +124,7 @@ const BookingTable = () => {
 
     // Generate a unique ObjectId-like value for seatId
     //const seatId = generateObjectId(); //Changes by Pratyusha. Moved this to utils
-    const seatId = getRandomId();
+    const seatId = useRandomId();
     console.log("Generated seatId:", seatId);
 
     // Check if the seat is available before making a booking
