@@ -57,10 +57,10 @@ const BookingTable = () => {
         setBookedSeats(updatedSeats);
         console.log("Updated bookedSeats:", updatedSeats);
       })
-      // .catch((error) => {
-      //   console.error("Error fetching bookings:", error);
-      //   setError("Error fetching bookings. Please try again.");
-      // });
+      .catch((error) => {
+        console.error("Error fetching bookings:", error);
+        setError("Error fetching bookings. Please try again.");
+      });
   };
 
   // Fetch bookings on component mount and whenever isLoggedIn or selectedDate changes
@@ -147,7 +147,8 @@ const BookingTable = () => {
       return date;
     }
 
-    const startDate = new Date("2024-07-15");
+    const startDate = new Date(selectedDate);
+    startDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
 
     const requestBody = {
       userId: user.user._id,
@@ -201,44 +202,39 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-  const weekdays = [
-    {
-      name: "Monday",
-      date: new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate() - selectedDate.getDay() + 1
-      ),
-      timing: "8.30-10pm",
-    },
-    {
-      name: "Tuesday",
-      date: new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate() - selectedDate.getDay() + 2
-      ),
-      timing: "9-10.30pm",
-    },
-    {
-      name: "Wednesday",
-      date: new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate() - selectedDate.getDay() + 3
-      ),
-      timing: "8.30-10pm",
-    },
-    {
-      name: "Friday",
-      date: new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate() - selectedDate.getDay() + 5
-      ),
-      timing: "9.30-11pm",
-    },
-  ];
+
+  const calculateWeekdays = (date) => {
+    const startDate = new Date(date);
+    const day = startDate.getDay();
+    const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
+    startDate.setDate(diff);
+    const days = [
+      {
+        name: "Monday",
+        timing: "8.30-10pm",
+      },
+      {
+        name: "Tuesday",
+        timing: "9-10.30pm",
+      },
+      {
+        name: "Wednesday",
+        timing: "8.30-10pm",
+      },
+      {
+        name: "Friday",
+        timing: "9.30-11pm",
+      },
+    ];
+    return days.map((day, index) => {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + index);
+      return { ...day, date: currentDate };
+    });
+  };
+
+  const weekdays = calculateWeekdays(selectedDate);
+
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
@@ -309,11 +305,11 @@ const BookingTable = () => {
             </tr>
           </thead>
           <tbody>
-          {chunkedSlots.map((chunk, chunkIndex) => (
+            {chunkedSlots.map((chunk, chunkIndex) => (
               <React.Fragment key={chunkIndex}>
                 {chunk.map((slot, slotIndex) => (
                   <tr key={slotIndex}>
-                    <td>{slot}</td>          
+                    <td>{slot}</td>
                     {weekdays.map((day, dayIndex) => (
                       <td
                         key={`${dayIndex}-${chunkIndex * 4 + slotIndex}`}
@@ -329,7 +325,8 @@ const BookingTable = () => {
                       >
                         {bookedSeats[dayIndex] &&
                         bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex].userName // Display user's name
+                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                              .userName // Display user's name
                           : "Available"}
                       </td>
                     ))}
