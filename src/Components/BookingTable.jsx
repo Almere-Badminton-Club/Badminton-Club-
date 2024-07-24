@@ -31,9 +31,9 @@ const BookingTable = () => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/bookings?date=${formattedDate}`, {
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
         },
       })
       .then((response) => {
@@ -43,7 +43,15 @@ const BookingTable = () => {
         );
 
         response.data.bookings.forEach((booking) => {
-          const { dayIndex, slotIndex, seatId, bookingId, userId, userName, bookingDate } = booking;
+          const {
+            dayIndex,
+            slotIndex,
+            seatId,
+            bookingId,
+            userId,
+            userName,
+            bookingDate,
+          } = booking;
           updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
           updatedSeats[dayIndex][slotIndex] = {
             seatId,
@@ -70,13 +78,13 @@ const BookingTable = () => {
     }
   }, [isLoggedIn, selectedDate]);
 
-  // Handle change in date
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setBookedSeats([]);
-    setError(null);
-    fetchBookings(date);
-  };
+  // // Handle change in date
+  // const handleDateChange = (date) => {
+  //   setSelectedDate(date);
+  //   setBookedSeats([]);
+  //   setError(null);
+  //   fetchBookings(date);
+  // };
 
   // Handle navigation to previous week
   const handlePrevWeek = () => {
@@ -208,33 +216,40 @@ const BookingTable = () => {
     const day = startDate.getDay();
     const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
     startDate.setDate(diff);
+
     const days = [
       {
         name: "Monday",
         timing: "8.30-10pm",
+        dayIndex: 1
       },
       {
         name: "Tuesday",
         timing: "9-10.30pm",
+        dayIndex: 2
       },
       {
         name: "Wednesday",
         timing: "8.30-10pm",
+        dayIndex: 3
       },
       {
         name: "Friday",
         timing: "9.30-11pm",
+        dayIndex: 5
       },
     ];
-    return days.map((day, index) => {
+    return days.map(day => {
       const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + index);
-      return { ...day, date: currentDate };
+      const currentDay = currentDate.getDay();
+      const dayDifference = (day.dayIndex - currentDay + 7) % 7;
+      currentDate.setDate(startDate.getDate() + dayDifference);
+      return { ...day, date: currentDate};
     });
   };
 
   const weekdays = calculateWeekdays(selectedDate);
-
+  console.log("weekdays:", weekdays);
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
