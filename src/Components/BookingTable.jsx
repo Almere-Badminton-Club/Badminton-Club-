@@ -78,14 +78,7 @@ const BookingTable = () => {
     }
   }, [isLoggedIn, selectedDate]);
 
-  // // Handle change in date
-  // const handleDateChange = (date) => {
-  //   setSelectedDate(date);
-  //   setBookedSeats([]);
-  //   setError(null);
-  //   fetchBookings(date);
-  // };
-
+  
   // Handle navigation to previous week
   const handlePrevWeek = () => {
     const prevWeek = new Date(selectedDate);
@@ -249,7 +242,6 @@ const BookingTable = () => {
   };
 
   const weekdays = calculateWeekdays(selectedDate);
-  console.log("weekdays:", weekdays);
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
