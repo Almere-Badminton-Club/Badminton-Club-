@@ -20,7 +20,6 @@ function App() {
           <Route path="/signup" element={<IsAnon> <SignupPage /> </IsAnon>} />
           <Route path="/login" element={ <IsAnon> <LoginPage /> </IsAnon>  } />
           <Route path="/registration" element={<IsPrivate><Registration/></IsPrivate> } /> 
-          <Route path="/bookings" element={<BookingTable/>}/>
           <Route path="/aboutUs" element={<AboutUs />}/>
 
         </Routes>

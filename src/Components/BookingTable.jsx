@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
 import useRandomId from "../Utils/useRandomId";
-import useWeekdaysdata from "../Utils/useWeekdaysdata";
+import calculateWeekDays from "../Utils/calculateWeekDays";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -32,10 +32,11 @@ const BookingTable = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  
   const navigate = useNavigate();
+
   // const fetchweekdays = weekdaysdata(selectedDate);
-  const fetchweekdays = useWeekdaysdata(selectedDate);
+  const fetchweekdays = calculateWeekDays(selectedDate);
+  console.log(fetchweekdays);
   
 
   // Function to fetch bookings
@@ -115,7 +116,6 @@ const BookingTable = () => {
     }
 
     // Generate a unique ObjectId-like value for seatId
-    //const seatId = generateObjectId(); //Changes by Pratyusha. Moved this to utils
     const seatId = useRandomId();
     console.log("Generated seatId:", seatId);
 
@@ -130,10 +130,15 @@ const BookingTable = () => {
     function getBookingDate(dayIndex, startDate) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + dayIndex);
+    console.log("Date:", date);
+
       return date;
+      
     }
 
-    const startDate = new Date("2024-07-15");
+
+    const startDate = new Date(selectedDate);
+    startDate.setDate(selectedDate.getDate() - selectedDate.getDate() + 1);
 
     const requestBody = {
       userId: user.user._id,
