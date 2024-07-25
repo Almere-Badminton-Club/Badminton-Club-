@@ -138,7 +138,7 @@ const BookingTable = () => {
 
 
     const startDate = new Date(selectedDate);
-    startDate.setDate(selectedDate.getDate() - selectedDate.getDate() + 1);
+    startDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
 
     const requestBody = {
       userId: user.user._id,
