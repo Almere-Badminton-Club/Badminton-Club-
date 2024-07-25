@@ -80,14 +80,6 @@ const BookingTable = () => {
     }
   }, [isLoggedIn, selectedDate]);
 
-  // Handle change in date  Can be removed Nisha? -Pratyusha
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setBookedSeats([]);
-    setError(null);
-    fetchBookings(date);
-  };
-
 
   // Pratyusha changes to handle prev and next week clicks
   const handleChangeWeek = (e) => {
@@ -195,47 +187,6 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-
-
-  // Removed by Pratyusha and moved to utils
-  // const weekdays = [
-  //   {
-  //     name: "Monday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 1
-  //     ),
-  //     timing: "8.30-10pm",
-  //   },
-  //   {
-  //     name: "Tuesday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 2
-  //     ),
-  //     timing: "9-10.30pm",
-  //   },
-  //   {
-  //     name: "Wednesday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 3
-  //     ),
-  //     timing: "8.30-10pm",
-  //   },
-  //   {
-  //     name: "Friday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 5
-  //     ),
-  //     timing: "9.30-11pm",
-  //   },
-  // ];
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
