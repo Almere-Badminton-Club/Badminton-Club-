@@ -78,7 +78,6 @@ const BookingTable = () => {
     }
   }, [isLoggedIn, selectedDate]);
 
-  
   // Handle navigation to previous week
   const handlePrevWeek = () => {
     const prevWeek = new Date(selectedDate);
@@ -143,8 +142,17 @@ const BookingTable = () => {
 
     // Function to get the booking date based on the dayIndex and the start of the week
     function getBookingDate(dayIndex, startDate) {
+      if (dayIndex === 5 ) {
+        dayIndex += 1;
+      }
+
       const date = new Date(startDate);
       date.setDate(date.getDate() + dayIndex);
+
+      if( date.getDay() === 4) {
+        date.setDate(date.getDate() + 1);
+      }
+      console.log("Date:", date);
       return date;
     }
 
