@@ -3,22 +3,24 @@ import BookingTable from "../Components/BookingTable";
 import CarouselComponent from "../Components/CarouselComponent";
 import MyMapComponent from "../Components/mapContainerStyle";
 import "../Styles/mapContainerStyle.css";
-import Footer from "../Components/Footer";
 
 const HomePage = () => {
   return (
-    <>
-      <h1 className="color-change-title ">Welcome to Smashers Badminton Club</h1>
+    <div className="min-h-screen bg-gray-100">
       <CarouselComponent />
-      <div>
-      <h3 style={{ textAlign: 'center', marginTop: '20px' }}>Our Location</h3>
-        <div className="map-container">
-          <MyMapComponent />
-        </div>
+
+      <h3 className="text-lg font-semibold text-center mt-8 mb-4">
+        Our Location
+      </h3>
+
+      <div className="mb-16 relative flex justify-center">
+        <MyMapComponent />
       </div>
-      <BookingTable />
-      <Footer />
-    </>
+
+      <div className="">
+        <BookingTable />
+      </div>
+    </div>
   );
 };
 
