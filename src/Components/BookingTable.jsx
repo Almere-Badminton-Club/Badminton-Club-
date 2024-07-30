@@ -1,11 +1,22 @@
+/* Change Log:
+1. Moved random seatcid genrating code to utils
+2. Moved weekdays array structure to utils
+3. Refactored the code to fetch data by get and post through services
+4. Prev and Next clicks refactoring by keeping single function and passing parameter to determine prev, next
+
+
+*/
+
 import React, { useEffect, useState, useContext } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import axios from "axios";
+import { fetchBookingdata, createBookingForUser } from "../services/api";
 import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
+import useRandomId from "../Utils/useRandomId";
+import calculateWeekDays from "../Utils/calculateWeekDays";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -23,35 +34,25 @@ const BookingTable = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const navigate = useNavigate();
 
+  // const fetchweekdays = weekdaysdata(selectedDate);
+  const fetchweekdays = calculateWeekDays(selectedDate);
+  console.log(fetchweekdays);
+  
+
   // Function to fetch bookings
   const fetchBookings = (date) => {
     const formattedDate = date.toISOString().split("T")[0];
     console.log("fetching bookings for date:", formattedDate);
 
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/bookings?date=${formattedDate}`, {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      })
+    fetchBookingdata(date)
       .then((response) => {
         console.log("fetched Bookings", response.data);
-        const updatedSeats = Array.from({ length: weekdays.length }, () =>
+        const updatedSeats = Array.from({ length: fetchweekdays.length }, () =>
           Array(slots.length).fill(null)
         );
 
         response.data.bookings.forEach((booking) => {
-          const {
-            dayIndex,
-            slotIndex,
-            seatId,
-            bookingId,
-            userId,
-            userName,
-            bookingDate,
-          } = booking;
+          const { dayIndex, slotIndex, seatId, bookingId, userId, userName, bookingDate } = booking;
           updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
           updatedSeats[dayIndex][slotIndex] = {
             seatId,
@@ -65,49 +66,33 @@ const BookingTable = () => {
         setBookedSeats(updatedSeats);
         console.log("Updated bookedSeats:", updatedSeats);
       })
-      .catch((error) => {
-        console.error("Error fetching bookings:", error);
-        setError("Error fetching bookings. Please try again.");
-      });
+      // .catch((error) => {
+      //   console.error("Error fetching bookings:", error);
+      //   setError("Error fetching bookings. Please try again.");
+      // });
   };
 
   // Fetch bookings on component mount and whenever isLoggedIn or selectedDate changes
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn) {     
+      console.log('Weekdays', fetchweekdays);
       fetchBookings(selectedDate);
+
     }
   }, [isLoggedIn, selectedDate]);
 
-  // Handle navigation to previous week
-  const handlePrevWeek = () => {
-    const prevWeek = new Date(selectedDate);
-    prevWeek.setDate(selectedDate.getDate() - 7);
-    setSelectedDate(prevWeek);
+
+  // Pratyusha changes to handle prev and next week clicks
+  const handleChangeWeek = (e) => {
+    const mode = e.currentTarget.dataset.mode;
+    const setWeek = new Date(selectedDate);
+    mode == 'prev' ? setWeek.setDate(selectedDate.getDate() - 7) : setWeek.setDate(selectedDate.getDate() + 7);
+    setSelectedDate(setWeek);
     setBookedSeats([]);
     setError(null);
-    fetchBookings(prevWeek);
-  };
+    fetchBookings(setWeek);
+  }
 
-  // Handle navigation to next week
-  const handleNextWeek = () => {
-    const nextWeek = new Date(selectedDate);
-    nextWeek.setDate(selectedDate.getDate() + 7);
-    setSelectedDate(nextWeek);
-    setBookedSeats([]);
-    setError(null);
-    fetchBookings(nextWeek);
-  };
-
-  const generateObjectId = () => {
-    const characters = "0123456789abcdef";
-    let objectId = "";
-    for (let i = 0; i < 24; i++) {
-      objectId += characters.charAt(
-        Math.floor(Math.random() * characters.length)
-      );
-    }
-    return objectId;
-  };
 
   const handleSeatSelect = (dayIndex, slotIndex) => {
     if (isLoading) {
@@ -131,7 +116,8 @@ const BookingTable = () => {
     }
 
     // Generate a unique ObjectId-like value for seatId
-    const seatId = generateObjectId();
+    const seatId = useRandomId();
+    console.log("Generated seatId:", seatId);
 
     // Check if the seat is available before making a booking
     if (bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]) {
@@ -142,19 +128,14 @@ const BookingTable = () => {
 
     // Function to get the booking date based on the dayIndex and the start of the week
     function getBookingDate(dayIndex, startDate) {
-      if (dayIndex === 5 ) {
-        dayIndex += 1;
-      }
-
       const date = new Date(startDate);
       date.setDate(date.getDate() + dayIndex);
+    console.log("Date:", date);
 
-      if( date.getDay() === 4) {
-        date.setDate(date.getDate() + 1);
-      }
-      console.log("Date:", date);
       return date;
+      
     }
+
 
     const startDate = new Date(selectedDate);
     startDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
@@ -169,8 +150,7 @@ const BookingTable = () => {
     };
     console.log("Request Body", requestBody);
 
-    axios
-      .post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
+    createBookingForUser(requestBody)
       .then((response) => {
         console.log(response);
         if (response.status === 201) {
@@ -204,52 +184,14 @@ const BookingTable = () => {
   };
 
   useEffect(() => {
-    const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
+    const initialBookedSeats = Array.from({ length: fetchweekdays.length }, () =>
       Array(slots.length).fill(null)
     );
     setBookedSeats(initialBookedSeats);
+
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-
-  const calculateWeekdays = (date) => {
-    const startDate = new Date(date);
-    const day = startDate.getDay();
-    const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
-    startDate.setDate(diff);
-
-    const days = [
-      {
-        name: "Monday",
-        timing: "8.30-10pm",
-        dayIndex: 1
-      },
-      {
-        name: "Tuesday",
-        timing: "9-10.30pm",
-        dayIndex: 2
-      },
-      {
-        name: "Wednesday",
-        timing: "8.30-10pm",
-        dayIndex: 3
-      },
-      {
-        name: "Friday",
-        timing: "9.30-11pm",
-        dayIndex: 5
-      },
-    ];
-    return days.map(day => {
-      const currentDate = new Date(startDate);
-      const currentDay = currentDate.getDay();
-      const dayDifference = (day.dayIndex - currentDay + 7) % 7;
-      currentDate.setDate(startDate.getDate() + dayDifference);
-      return { ...day, date: currentDate};
-    });
-  };
-
-  const weekdays = calculateWeekdays(selectedDate);
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
@@ -283,10 +225,12 @@ const BookingTable = () => {
       <div className="date-picker-container">
         <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">
-          <button onClick={handlePrevWeek}>
+
+          {/* Changes by Pratyusha for refactoring */}
+          <button data-mode="prev" onClick={handleChangeWeek}> 
             <BsArrowLeft />
           </button>
-          <button onClick={handleNextWeek}>
+          <button data-mode="next" onClick={handleChangeWeek}>
             <BsArrowRight />
           </button>
         </div>
@@ -311,7 +255,7 @@ const BookingTable = () => {
           <thead>
             <tr>
               <th></th>
-              {weekdays.map((day, index) => (
+              {fetchweekdays.map((day, index) => (
                 <th key={index}>
                   {day.name} - {day.date.toLocaleDateString()} <br />
                   {day.timing}
@@ -320,12 +264,12 @@ const BookingTable = () => {
             </tr>
           </thead>
           <tbody>
-            {chunkedSlots.map((chunk, chunkIndex) => (
+          {chunkedSlots.map((chunk, chunkIndex) => (
               <React.Fragment key={chunkIndex}>
                 {chunk.map((slot, slotIndex) => (
                   <tr key={slotIndex}>
-                    <td>{slot}</td>
-                    {weekdays.map((day, dayIndex) => (
+                    <td>{slot}</td>          
+                    {fetchweekdays.map((day, dayIndex) => (
                       <td
                         key={`${dayIndex}-${chunkIndex * 4 + slotIndex}`}
                         onClick={() =>
@@ -340,8 +284,7 @@ const BookingTable = () => {
                       >
                         {bookedSeats[dayIndex] &&
                         bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                              .userName // Display user's name
+                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex].userName // Display user's name
                           : "Available"}
                       </td>
                     ))}
