@@ -9,22 +9,42 @@ import IsPrivate from "./Components/IsPrivate";
 import IsAnon from "./Components/IsAnon";
 import BookingTable from "./Components/BookingTable";
 import AboutUs from "./Pages/AboutUs";
+import Footer from "./Components/Footer";
 
 function App() {
-
   return (
     <>
       <Navbar />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/signup" element={<IsAnon> <SignupPage /> </IsAnon>} />
-          <Route path="/login" element={ <IsAnon> <LoginPage /> </IsAnon>  } />
-          <Route path="/registration" element={<IsPrivate><Registration/></IsPrivate> } /> 
-          <Route path="/bookings" element={<BookingTable/>}/>
-          <Route path="/aboutUs" element={<AboutUs />}/>
-
-        </Routes>
-        
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/signup"
+          element={
+            <IsAnon>
+              <SignupPage />
+            </IsAnon>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <IsAnon>
+              <LoginPage />
+            </IsAnon>
+          }
+        />
+        <Route
+          path="/registration"
+          element={
+            <IsPrivate>
+              <Registration />
+            </IsPrivate>
+          }
+        />
+        <Route path="/bookings" element={<BookingTable />} />
+        <Route path="/aboutUs" element={<AboutUs />} />
+      </Routes>
+      <Footer />
     </>
   );
 }
