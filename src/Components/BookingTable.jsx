@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
 import useRandomId from "../Utils/useRandomId";
-import useWeekdaysdata from "../Utils/useWeekdaysdata";
+import calculateWeekDays from "../Utils/calculateWeekDays";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -32,10 +32,11 @@ const BookingTable = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  
   const navigate = useNavigate();
+
   // const fetchweekdays = weekdaysdata(selectedDate);
-  const fetchweekdays = useWeekdaysdata(selectedDate);
+  const fetchweekdays = calculateWeekDays(selectedDate);
+  console.log(fetchweekdays);
   
 
   // Function to fetch bookings
@@ -80,14 +81,6 @@ const BookingTable = () => {
     }
   }, [isLoggedIn, selectedDate]);
 
-  // Handle change in date  Can be removed Nisha? -Pratyusha
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setBookedSeats([]);
-    setError(null);
-    fetchBookings(date);
-  };
-
 
   // Pratyusha changes to handle prev and next week clicks
   const handleChangeWeek = (e) => {
@@ -123,7 +116,6 @@ const BookingTable = () => {
     }
 
     // Generate a unique ObjectId-like value for seatId
-    //const seatId = generateObjectId(); //Changes by Pratyusha. Moved this to utils
     const seatId = useRandomId();
     console.log("Generated seatId:", seatId);
 
@@ -138,10 +130,15 @@ const BookingTable = () => {
     function getBookingDate(dayIndex, startDate) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + dayIndex);
+    console.log("Date:", date);
+
       return date;
+      
     }
 
-    const startDate = new Date("2024-07-15");
+
+    const startDate = new Date(selectedDate);
+    startDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
 
     const requestBody = {
       userId: user.user._id,
@@ -195,47 +192,6 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-
-
-  // Removed by Pratyusha and moved to utils
-  // const weekdays = [
-  //   {
-  //     name: "Monday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 1
-  //     ),
-  //     timing: "8.30-10pm",
-  //   },
-  //   {
-  //     name: "Tuesday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 2
-  //     ),
-  //     timing: "9-10.30pm",
-  //   },
-  //   {
-  //     name: "Wednesday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 3
-  //     ),
-  //     timing: "8.30-10pm",
-  //   },
-  //   {
-  //     name: "Friday",
-  //     date: new Date(
-  //       selectedDate.getFullYear(),
-  //       selectedDate.getMonth(),
-  //       selectedDate.getDate() - selectedDate.getDay() + 5
-  //     ),
-  //     timing: "9.30-11pm",
-  //   },
-  // ];
   const regularSlots = Array.from({ length: 20 }, (_, index) =>
     (index + 1).toString()
   );
