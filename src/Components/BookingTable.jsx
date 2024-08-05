@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import axios from "axios";
 import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
+import calculateWeekdays from "../Utils/calculateWeekDays";
+import { fetchMultipleDaysBookings } from "../Utils/bookingUtils"; // Import utility function
+import axios from "axios";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
@@ -23,58 +25,53 @@ const BookingTable = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const navigate = useNavigate();
 
-  // Function to fetch bookings
-  const fetchBookings = (date) => {
-    const formattedDate = date.toISOString().split("T")[0];
-    console.log("fetching bookings for date:", formattedDate);
+  const weekdays = calculateWeekdays(selectedDate);
+  const slots = Array.from({ length: 25 }, (_, index) =>
+    index < 20 ? (index + 1).toString() : `W${index - 19}`
+  );
 
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/bookings?date=${formattedDate}`, {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      })
-      .then((response) => {
-        console.log("fetched Bookings", response.data);
-        const updatedSeats = Array.from({ length: weekdays.length }, () =>
-          Array(slots.length).fill(null)
-        );
+  // Function to fetch bookings for multiple days
+  const fetchAllBookings = async (startDate) => {
+    const numberOfDays = 5; // Fetch bookings for 5 days
+    try {
+      const bookings = await fetchMultipleDaysBookings(startDate, numberOfDays);
 
-        response.data.bookings.forEach((booking) => {
-          const {
-            dayIndex,
-            slotIndex,
-            seatId,
-            bookingId,
-            userId,
-            userName,
-            bookingDate,
-          } = booking;
-          updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
-          updatedSeats[dayIndex][slotIndex] = {
-            seatId,
-            bookingId,
-            userId,
-            userName,
-            bookingDate,
-          };
-        });
+      const updatedSeats = Array.from({ length: weekdays.length }, () =>
+        Array(slots.length).fill(null)
+      );
 
-        setBookedSeats(updatedSeats);
-        console.log("Updated bookedSeats:", updatedSeats);
-      })
-      .catch((error) => {
-        console.error("Error fetching bookings:", error);
-        setError("Error fetching bookings. Please try again.");
+      bookings.forEach((booking) => {
+        const {
+          dayIndex,
+          slotIndex,
+          seatId,
+          bookingId,
+          userId,
+          userName,
+          bookingDate,
+        } = booking;
+        updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
+        updatedSeats[dayIndex][slotIndex] = {
+          seatId,
+          bookingId,
+          userId,
+          userName,
+          bookingDate,
+        };
       });
+
+      setBookedSeats(updatedSeats);
+      console.log("Updated bookedSeats:", updatedSeats);
+    } catch (error) {
+      // console.error("Error fetching bookings:", error);
+      // setError("Error fetching bookings. Please try again.");
+    }
   };
 
   // Fetch bookings on component mount and whenever isLoggedIn or selectedDate changes
   useEffect(() => {
     if (isLoggedIn) {
-      fetchBookings(selectedDate);
+      fetchAllBookings(selectedDate);
     }
   }, [isLoggedIn, selectedDate]);
 
@@ -85,7 +82,7 @@ const BookingTable = () => {
     setSelectedDate(prevWeek);
     setBookedSeats([]);
     setError(null);
-    fetchBookings(prevWeek);
+    fetchAllBookings(prevWeek);
   };
 
   // Handle navigation to next week
@@ -95,7 +92,7 @@ const BookingTable = () => {
     setSelectedDate(nextWeek);
     setBookedSeats([]);
     setError(null);
-    fetchBookings(nextWeek);
+    fetchAllBookings(nextWeek);
   };
 
   const generateObjectId = () => {
@@ -142,14 +139,14 @@ const BookingTable = () => {
 
     // Function to get the booking date based on the dayIndex and the start of the week
     function getBookingDate(dayIndex, startDate) {
-      if (dayIndex === 5 ) {
+      if (dayIndex === 4) {
         dayIndex += 1;
       }
 
       const date = new Date(startDate);
       date.setDate(date.getDate() + dayIndex);
 
-      if( date.getDay() === 4) {
+      if (date.getDay() === 4) {
         date.setDate(date.getDate() + 1);
       }
       console.log("Date:", date);
@@ -169,8 +166,7 @@ const BookingTable = () => {
     };
     console.log("Request Body", requestBody);
 
-    axios
-      .post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
+    axios.post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
       .then((response) => {
         console.log(response);
         if (response.status === 201) {
@@ -191,16 +187,16 @@ const BookingTable = () => {
 
           const bookingDate =
             requestBody.bookingDate || new Date().toISOString().split("T")[0];
-          fetchBookings(new Date(bookingDate)); // Fetch updated bookings after successful booking
+          fetchAllBookings(new Date(bookingDate)); // Fetch updated bookings after successful booking
         } else {
           console.error("Error booking seat. Status:", response.status);
           setError("Error booking seat. Please try again.");
         }
+      })
+      .catch((error) => {
+        console.error("Error booking seat:", error);
+        setError("Error booking seat. Please try again.");
       });
-    // .catch((error) => {
-    //   console.error("Error booking seat:", error);
-    //   setError("Error booking seat. Please try again.");
-    // });
   };
 
   useEffect(() => {
@@ -211,54 +207,6 @@ const BookingTable = () => {
   }, [selectedDate]); // Update booked seats when selected date changes
 
   const totalSeats = 20;
-
-  const calculateWeekdays = (date) => {
-    const startDate = new Date(date);
-    const day = startDate.getDay();
-    const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
-    startDate.setDate(diff);
-
-    const days = [
-      {
-        name: "Monday",
-        timing: "8.30-10pm",
-        dayIndex: 1
-      },
-      {
-        name: "Tuesday",
-        timing: "9-10.30pm",
-        dayIndex: 2
-      },
-      {
-        name: "Wednesday",
-        timing: "8.30-10pm",
-        dayIndex: 3
-      },
-      {
-        name: "Friday",
-        timing: "9.30-11pm",
-        dayIndex: 5
-      },
-    ];
-    return days.map(day => {
-      const currentDate = new Date(startDate);
-      const currentDay = currentDate.getDay();
-      const dayDifference = (day.dayIndex - currentDay + 7) % 7;
-      currentDate.setDate(startDate.getDate() + dayDifference);
-      return { ...day, date: currentDate};
-    });
-  };
-
-  const weekdays = calculateWeekdays(selectedDate);
-  console.log("weekdays:", weekdays);
-  const regularSlots = Array.from({ length: 20 }, (_, index) =>
-    (index + 1).toString()
-  );
-  const waitingListSlots = Array.from(
-    { length: 5 },
-    (_, index) => `W${index + 1}`
-  );
-  const slots = [...regularSlots, ...waitingListSlots];
 
   const getWeekNumber = (date) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
