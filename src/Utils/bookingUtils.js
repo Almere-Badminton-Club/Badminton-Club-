@@ -1,7 +1,14 @@
 import axios from "axios";
 
-export const fetchBookingsForDate = async (date) => {
+// Helper function to get the Monday of the current week for a given date
+const getMondayOfCurrentWeek = (date) => {
+  const day = date.getDay();
+  const diff = date.getDate() - (day === 0 ? 6 : day - 1); // Adjust when day is Sunday (0) to previous Monday
+  const monday = new Date(date.setDate(diff));
+  return new Date(monday.setHours(0, 0, 0, 0)); // Set time to the start of the day
+};
 
+export const fetchBookingsForDate = async (date) => {
   const formattedDate = date.toISOString().split("T")[0];
   console.log("fetching bookings for date:", formattedDate);
 
@@ -22,12 +29,13 @@ export const fetchBookingsForDate = async (date) => {
 };
 
 export const fetchMultipleDaysBookings = async (startDate, numberOfDays) => {
-  const daysToFetch = [0, 1, 2, 4]; // Offsets for Monday, Tuesday, Wednesday, and Friday
+  const mondayOfCurrentWeek = getMondayOfCurrentWeek(new Date(startDate));
+  const daysToFetch = [ 1, 2, 3, 5]; // Offsets for Monday, Tuesday, Wednesday, and Friday
   const promises = [];
 
-  for (let i = 0; i < numberOfDays; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + daysToFetch[i]);
+  for (let i = 0; i < numberOfDays && i < daysToFetch.length; i++) {
+    const date = new Date(mondayOfCurrentWeek);
+    date.setDate(mondayOfCurrentWeek.getDate() + daysToFetch[i]);
     promises.push(fetchBookingsForDate(date));
   }
 
