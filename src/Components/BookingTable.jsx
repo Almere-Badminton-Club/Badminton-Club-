@@ -1,3 +1,4 @@
+// BookingTable.js
 import React, { useEffect, useState, useContext } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
@@ -7,6 +8,8 @@ import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
 import calculateWeekdays from "../Utils/calculateWeekDays";
 import { fetchMultipleDaysBookings } from "../Utils/bookingUtils"; // Import utility function
+import { handlePrevWeek, handleNextWeek } from "../Utils/weekNavigation"; // Import navigation functions
+import generateObjectId from "../Utils/generateObjectId";
 import axios from "axios";
 
 const BookingTable = () => {
@@ -64,7 +67,7 @@ const BookingTable = () => {
       console.log("Updated bookedSeats:", updatedSeats);
     } catch (error) {
       // console.error("Error fetching bookings:", error);
-      // setError("Error fetching bookings. Please try again.");
+      setError("Error fetching bookings. Please try again.");
     }
   };
 
@@ -75,36 +78,6 @@ const BookingTable = () => {
     }
   }, [isLoggedIn, selectedDate]);
 
-  // Handle navigation to previous week
-  const handlePrevWeek = () => {
-    const prevWeek = new Date(selectedDate);
-    prevWeek.setDate(selectedDate.getDate() - 7);
-    setSelectedDate(prevWeek);
-    setBookedSeats([]);
-    setError(null);
-    fetchAllBookings(prevWeek);
-  };
-
-  // Handle navigation to next week
-  const handleNextWeek = () => {
-    const nextWeek = new Date(selectedDate);
-    nextWeek.setDate(selectedDate.getDate() + 7);
-    setSelectedDate(nextWeek);
-    setBookedSeats([]);
-    setError(null);
-    fetchAllBookings(nextWeek);
-  };
-
-  const generateObjectId = () => {
-    const characters = "0123456789abcdef";
-    let objectId = "";
-    for (let i = 0; i < 24; i++) {
-      objectId += characters.charAt(
-        Math.floor(Math.random() * characters.length)
-      );
-    }
-    return objectId;
-  };
 
   const handleSeatSelect = (dayIndex, slotIndex) => {
     if (isLoading) {
@@ -232,10 +205,10 @@ const BookingTable = () => {
       <div className="date-picker-container">
         <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">
-          <button onClick={handlePrevWeek}>
+          <button onClick={() => handlePrevWeek(selectedDate, setSelectedDate, setBookedSeats, setError, fetchAllBookings)}>
             <BsArrowLeft />
           </button>
-          <button onClick={handleNextWeek}>
+          <button onClick={() => handleNextWeek(selectedDate, setSelectedDate, setBookedSeats, setError, fetchAllBookings)}>
             <BsArrowRight />
           </button>
         </div>

@@ -1,4 +1,4 @@
-const useRandomId = () => {
+const generateObjectId = () => {
 
     const characters = "0123456789abcdef";
     let objectId = "";
@@ -10,4 +10,4 @@ const useRandomId = () => {
     return objectId;
 };
 
-export default useRandomId;
+export default generateObjectId;
