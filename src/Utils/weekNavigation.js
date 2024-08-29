@@ -17,3 +17,4 @@ export const handlePrevWeek = (selectedDate, setSelectedDate, setBookedSeats, se
     setError(null);
     fetchAllBookings(nextWeek);
   };
+  

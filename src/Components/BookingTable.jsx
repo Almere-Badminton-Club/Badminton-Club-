@@ -67,7 +67,6 @@ const BookingTable = () => {
       console.log("Updated bookedSeats:", updatedSeats);
     } catch (error) {
       // console.error("Error fetching bookings:", error);
-      setError("Error fetching bookings. Please try again.");
     }
   };
 
@@ -75,7 +74,7 @@ const BookingTable = () => {
   useEffect(() => {
     if (isLoggedIn) {
       fetchAllBookings(selectedDate);
-    }
+    } 
   }, [isLoggedIn, selectedDate]);
 
 
@@ -156,6 +155,7 @@ const BookingTable = () => {
           console.log("Updated bookedSeats after booking:", updatedSeats);
           setBookingId(response.data.booking.bookingId); // Set booking ID from response
           console.log("Booking successful.");
+          // alert("You have successfully booked your slot. Enjoy your game!")
           setError(null);
 
           const bookingDate =
@@ -173,11 +173,11 @@ const BookingTable = () => {
   };
 
   useEffect(() => {
-    const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
+      const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
       Array(slots.length).fill(null)
     );
     setBookedSeats(initialBookedSeats);
-  }, [selectedDate]); // Update booked seats when selected date changes
+  }, [selectedDate]); 
 
   const totalSeats = 20;
 
