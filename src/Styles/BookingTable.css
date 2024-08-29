@@ -28,7 +28,7 @@
     margin: 0 10px;
   }
   
-  .slots-container table {
+  .slots-container table {  /* need to change the setting of container. it should be shrink along with the seat-booking-container.*/
     width: 100%;
     border-collapse: collapse;
   }

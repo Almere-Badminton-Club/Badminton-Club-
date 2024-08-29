@@ -16,7 +16,6 @@ const HomePage = () => {
           <MyMapComponent />
         </div>
       </div>
-      <BookingTable />
       <Footer />
     </>
   );
