@@ -11,22 +11,19 @@ import { fetchMultipleDaysBookings } from "../Utils/bookingUtils"; // Import uti
 import { handlePrevWeek, handleNextWeek } from "../Utils/weekNavigation"; // Import navigation functions
 import generateObjectId from "../Utils/generateObjectId";
 import axios from "axios";
+import { handleWaitingListBooking } from "../Utils/waitingListBooking";
+import { handleCancelBooking } from "../Utils/cancelBooking";
+import { handleWaitingListReplacement } from "../Utils/waitingListReplacement";
 
 const BookingTable = () => {
   const { isLoggedIn, user, isLoading } = useContext(AuthContext);
-  const {
-    bookedSeats,
-    setBookedSeats,
-    bookingId,
-    setBookingId,
-    error,
-    setError,
-    resetBookingState,
-  } = useBookingContext();
+  const { bookedSeats, setBookedSeats, setBookingId, error, setError } =
+    useBookingContext();
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const navigate = useNavigate();
+  const [cancelQueue, setCancelQueue] = useState([]);
 
   const weekdays = calculateWeekdays(selectedDate);
   const slots = Array.from({ length: 25 }, (_, index) =>
@@ -74,9 +71,8 @@ const BookingTable = () => {
   useEffect(() => {
     if (isLoggedIn) {
       fetchAllBookings(selectedDate);
-    } 
+    }
   }, [isLoggedIn, selectedDate]);
-
 
   const handleSeatSelect = (dayIndex, slotIndex) => {
     if (isLoading) {
@@ -85,6 +81,19 @@ const BookingTable = () => {
     if (!isLoggedIn) {
       console.log("User not logged in or user ID not available.");
       setShowLoginPopup(true);
+      return;
+    }
+
+    // Handle waiting list booking
+    if (slotIndex >= 20) {
+      handleWaitingListBooking(
+        bookedSeats,
+        setBookedSeats,
+        user,
+        dayIndex,
+        slotIndex,
+        setError
+      );
       return;
     }
 
@@ -138,7 +147,8 @@ const BookingTable = () => {
     };
     console.log("Request Body", requestBody);
 
-    axios.post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
+    axios
+      .post(`${import.meta.env.VITE_API_URL}/bookings`, requestBody)
       .then((response) => {
         console.log(response);
         if (response.status === 201) {
@@ -173,11 +183,54 @@ const BookingTable = () => {
   };
 
   useEffect(() => {
-      const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
+    const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
       Array(slots.length).fill(null)
     );
     setBookedSeats(initialBookedSeats);
-  }, [selectedDate]); 
+  }, [selectedDate]);
+
+  // Add logic for cancellation and waiting list replacement
+  const handleSeatCancel = (dayIndex, slotIndex) => {
+    if (!isLoggedIn) {
+      setError("Please log in to cancel a booking.");
+      return;
+    }
+
+    // Check if the selected slot is actually booked and if it is booked by the current user
+    const bookedSlot = bookedSeats[dayIndex][slotIndex];
+    if (!bookedSlot || bookedSlot.userId !== user.user._id) {
+      setError("You cannot cancel a booking that is not yours.");
+      return;
+    }
+
+    // Proceed with cancelling the booking
+
+    handleCancelBooking(
+      bookedSeats,
+      setBookedSeats,
+      user,
+      dayIndex,
+      slotIndex,
+      setError,
+      cancelQueue,
+      setCancelQueue
+    );
+
+    // Notify W1 if available
+    const waitingListUser = bookedSeats[dayIndex].find(
+      (slot) => slot && slot.seatId && slot.seatId.startsWith("W")
+    );
+    if (waitingListUser) {
+      handleWaitingListReplacement(
+        bookedSeats,
+        setBookedSeats,
+        cancelQueue,
+        setCancelQueue,
+        waitingListUser,
+        setError
+      );
+    }
+  };
 
   const totalSeats = 20;
 
@@ -199,16 +252,55 @@ const BookingTable = () => {
 
   const chunkedSlots = chunkArray(slots, 4);
 
+  const handleSeatClick = (dayIndex, slotIndex) => {
+    const bookedSlot = bookedSeats[dayIndex][slotIndex];
+
+    // If the seat is already booked by the user, allow cancellation
+    if (bookedSlot && bookedSlot.userId === user.user._id) {
+      handleSeatCancel(dayIndex, slotIndex);
+    }
+
+    // If the seat is available , proceed with booking
+    else if (!bookedSlot) {
+      handleSeatSelect(dayIndex, slotIndex);
+    }
+
+    // If the sseat is booked by the another user, show en error
+    else {
+      setError("This slot is already booked by someone else.");
+    }
+  };
+
   return (
     <div className="seat-booking-container">
       <h1 className="fade-in-title">Reserve your Spot</h1>
       <div className="date-picker-container">
         <h2>Week Number: {currentWeekNumber}</h2>
         <div className="date-navigation">
-          <button onClick={() => handlePrevWeek(selectedDate, setSelectedDate, setBookedSeats, setError, fetchAllBookings)}>
+          <button
+            onClick={() =>
+              handlePrevWeek(
+                selectedDate,
+                setSelectedDate,
+                setBookedSeats,
+                setError,
+                fetchAllBookings
+              )
+            }
+          >
             <BsArrowLeft />
           </button>
-          <button onClick={() => handleNextWeek(selectedDate, setSelectedDate, setBookedSeats, setError, fetchAllBookings)}>
+          <button
+            onClick={() =>
+              handleNextWeek(
+                selectedDate,
+                setSelectedDate,
+                setBookedSeats,
+                setError,
+                fetchAllBookings
+              )
+            }
+          >
             <BsArrowRight />
           </button>
         </div>
@@ -251,19 +343,22 @@ const BookingTable = () => {
                       <td
                         key={`${dayIndex}-${chunkIndex * 4 + slotIndex}`}
                         onClick={() =>
-                          handleSeatSelect(dayIndex, chunkIndex * 4 + slotIndex)
+                          handleSeatClick(dayIndex, chunkIndex * 4 + slotIndex)
                         }
                         className={
                           bookedSeats[dayIndex] &&
                           bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                            ? "booked"
+                            ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                                .userId === user.user._id
+                              ? "booked-by-user" // Different class if booked by the current user
+                              : "booked" // Class for booked by others
                             : "available"
                         }
                       >
                         {bookedSeats[dayIndex] &&
                         bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
                           ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                              .userName // Display user's name
+                              .userName
                           : "Available"}
                       </td>
                     ))}
