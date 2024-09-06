@@ -1,4 +1,3 @@
-// cancelBooking.js
 export const handleCancelBooking = (
   bookedSeats,
   setBookedSeats,
@@ -10,7 +9,7 @@ export const handleCancelBooking = (
   setCancelQueue
 ) => {
   if (bookedSeats[dayIndex][slotIndex] && bookedSeats[dayIndex][slotIndex].userId === user.user._id) {
-      const cancelConfirmation = window.confirm("Do you want to cancel your booking?");
+      const cancelConfirmation = window.confirm("Do you want to request to cancel your booking?");
       
       if (cancelConfirmation) {
           // Get the booking date and time
@@ -26,8 +25,9 @@ export const handleCancelBooking = (
               return;
           }
 
-          // Create a unique cancellation suffix
-          const cancelSuffix = cancelQueue.filter(entry => entry.slotIndex === slotIndex).length + 1;
+          // Filter the cancellation queue for the current day
+          const cancelQueueForDay = cancelQueue.filter(entry => entry.dayIndex === dayIndex);
+          const cancelSuffix = cancelQueueForDay.length + 1; // Reset suffix for each day
           const cancelId = `C${cancelSuffix}`;
 
           // Update the booking to indicate cancellation
@@ -39,8 +39,8 @@ export const handleCancelBooking = (
           };
           setBookedSeats(updatedSeats);
 
-          // Add to cancelQueue
-          const newCancelQueue = [...cancelQueue, { userName: user.user.name, slotIndex: slotIndex }];
+          // Add to cancelQueue, including the day index
+          const newCancelQueue = [...cancelQueue, { userName: user.user.name, slotIndex: slotIndex, dayIndex }];
           setCancelQueue(newCancelQueue);
           console.log("Updated cancel queue:", newCancelQueue);
       }
