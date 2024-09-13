@@ -22,6 +22,7 @@ function App() {
           <Route path="/registration" element={<IsPrivate><Registration/></IsPrivate> } /> 
           <Route path="/bookings" element={<BookingTable/>}/>
           <Route path="/aboutUs" element={<AboutUs />}/>
+          <Route path="/cancel" element={<BookingTable/>}/>
 
         </Routes>
         
