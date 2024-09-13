@@ -1,4 +1,4 @@
-const calculateWeekDays = (date) => {
+ const calculateWeekDays = (date) => {
   const startDate = new Date(date);
   const day = startDate.getDay();
   const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
@@ -7,23 +7,23 @@ const calculateWeekDays = (date) => {
   const days = [
     {
       name: "Monday",
-      timing: "8.30-10pm",
+      timing: "8:30 PM - 10:00 PM",
       dayIndex: 1
     },
     {
       name: "Tuesday",
-      timing: "9-10.30pm",
+      timing: "9:00 PM - 10:30 PM",
       dayIndex: 2
     },
     {
       name: "Wednesday",
-      timing: "8.30-10pm",
+      timing: "8:30 PM - 10:00 PM",
       dayIndex: 3
     },
     {
 <<<<<<< HEAD
       name: "Friday",
-      timing: "9.30-11pm",
+      timing: "9.30 PM - 11:00 PM",
       dayIndex: 5
     },
   ]
