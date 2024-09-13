@@ -1,12 +1,12 @@
 // BookingTable.js
-import React, { useEffect, useState, useContext, useMemo } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { AuthContext } from "../Context/auth.context";
 import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
-import calculateWeekDays from "../Utils/calculateWeekDays";
+import calculateWeekdays from "../Utils/calculateWeekDays";
 import { fetchMultipleDaysBookings } from "../Utils/bookingUtils"; // Import utility function
 import { handlePrevWeek, handleNextWeek } from "../Utils/weekNavigation"; // Import navigation functions
 import generateObjectId from "../Utils/generateObjectId";
@@ -25,38 +25,47 @@ const BookingTable = () => {
   const navigate = useNavigate();
   const [cancelQueue, setCancelQueue] = useState([]);
 
-  
-  const fetchWeekdays = useMemo(() => calculateWeekDays(selectedDate), [selectedDate]) 
-  console.log(fetchWeekdays);
+  const weekdays = calculateWeekdays(selectedDate);
   const slots = Array.from({ length: 25 }, (_, index) =>
-  index < 20 ? (index + 1).toString() : `W${index - 19 }`
-);
-  
+    index < 20 ? (index + 1).toString() : `W${index - 19}`
+  );
 
-  // Function to fetch bookings
- const fetchAllBookings = async (startDate) => {
-  const numberOfDays = 5;
-  try {
-    const bookings = await fetchMultipleDaysBookings(startDate, numberOfDays);
+  // Function to fetch bookings for multiple days
+  const fetchAllBookings = async (startDate) => {
+    const numberOfDays = 5; // Fetch bookings for 5 days
+    try {
+      const bookings = await fetchMultipleDaysBookings(startDate, numberOfDays);
 
-    const updatedSeats = Array.from({ length: weekdays.length }, () => 
-      Array(slots.length).fill(null)
-    );
+      const updatedSeats = Array.from({ length: weekdays.length }, () =>
+        Array(slots.length).fill(null)
+      );
 
-    bookings.forEach((booking) => {
-      const {dayIndex, slotIndex, seatId, bookingId, userId, userName, bookingDate,} = booking;
-      updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
-      updatedSeats[dayIndex][slotIndex] = {
-        seatId, bookingId, userId, userName,bookingDate,
-      };
-    });
+      bookings.forEach((booking) => {
+        const {
+          dayIndex,
+          slotIndex,
+          seatId,
+          bookingId,
+          userId,
+          userName,
+          bookingDate,
+        } = booking;
+        updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
+        updatedSeats[dayIndex][slotIndex] = {
+          seatId,
+          bookingId,
+          userId,
+          userName,
+          bookingDate,
+        };
+      });
 
-    setBookedSeats(updatedSeats);
-    console.log("Updated BookedSeats:", updatedSeats);
-  } catch (error){
-    //console.error("Error fetching bookings:", error);
-  }
- }
+      setBookedSeats(updatedSeats);
+      console.log("Updated bookedSeats:", updatedSeats);
+    } catch (error) {
+      // console.error("Error fetching bookings:", error);
+    }
+  };
 
   // Fetch bookings on component mount and whenever isLoggedIn or selectedDate changes
   useEffect(() => {
@@ -101,7 +110,6 @@ const BookingTable = () => {
 
     // Generate a unique ObjectId-like value for seatId
     const seatId = generateObjectId();
-    console.log("Generated seatId:", seatId);
 
     // Check if the seat is available before making a booking
     if (bookedSeats[dayIndex] && bookedSeats[dayIndex][slotIndex]) {
@@ -124,9 +132,7 @@ const BookingTable = () => {
       }
       console.log("Date:", date);
       return date;
-      
     }
-
 
     const startDate = new Date(selectedDate);
     startDate.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
@@ -164,7 +170,7 @@ const BookingTable = () => {
 
           const bookingDate =
             requestBody.bookingDate || new Date().toISOString().split("T")[0];
-          fetchAllBookings(new Date(getBookingDate(dayIndex, startDate))); // Fetch updated bookings after successful booking
+          fetchAllBookings(new Date(bookingDate)); // Fetch updated bookings after successful booking
         } else {
           console.error("Error booking seat. Status:", response.status);
           setError("Error booking seat. Please try again.");
@@ -177,7 +183,7 @@ const BookingTable = () => {
   };
 
   useEffect(() => {
-    const initialBookedSeats = Array.from({ length: fetchWeekdays.length }, () =>
+    const initialBookedSeats = Array.from({ length: weekdays.length }, () =>
       Array(slots.length).fill(null)
     );
     setBookedSeats(initialBookedSeats);
@@ -319,7 +325,7 @@ const BookingTable = () => {
           <thead>
             <tr>
               <th></th>
-              {fetchWeekdays.map((day, index) => (
+              {weekdays.map((day, index) => (
                 <th key={index}>
                   {day.name} - {day.date.toLocaleDateString()} <br />
                   {day.timing}
@@ -328,12 +334,12 @@ const BookingTable = () => {
             </tr>
           </thead>
           <tbody>
-          {chunkedSlots.map((chunk, chunkIndex) => (
+            {chunkedSlots.map((chunk, chunkIndex) => (
               <React.Fragment key={chunkIndex}>
                 {chunk.map((slot, slotIndex) => (
                   <tr key={slotIndex}>
-                    <td>{slot}</td>          
-                    {fetchWeekdays.map((day, dayIndex) => (
+                    <td>{slot}</td>
+                    {weekdays.map((day, dayIndex) => (
                       <td
                         key={`${dayIndex}-${chunkIndex * 4 + slotIndex}`}
                         onClick={() =>
