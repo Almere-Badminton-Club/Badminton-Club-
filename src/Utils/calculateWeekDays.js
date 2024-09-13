@@ -21,6 +21,7 @@ const calculateWeekDays = (date) => {
       dayIndex: 3
     },
     {
+<<<<<<< HEAD
       name: "Friday",
       timing: "9.30-11pm",
       dayIndex: 5
@@ -34,6 +35,21 @@ const calculateWeekDays = (date) => {
     return { ...day, date: currentDate };
   });
 };
+=======
+        name: "Friday",
+        timing: "9.30-11pm",
+        dayIndex: 5
+    },
+  ];
+    return days.map(day => {
+      const currentDate = new Date(startDate);
+      const currentDay = currentDate.getDay();
+      const dayDifference = (day.dayIndex - currentDay + 7) % 7;
+      currentDate.setDate(startDate.getDate() + dayDifference);
+      return { ...day, date: currentDate};
+    });
+  };
+>>>>>>> 9cb325f303a3eede853c389477476195c10aafd8
 
 
 export default calculateWeekDays;

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
-function SignupPage(props) {
+function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -16,12 +16,8 @@ function SignupPage(props) {
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
-    // Create an object representing the request body
     const requestBody = { email, password, name };
 
-    // Make an axios request to the API
-    // If POST request is successful redirect to login page
-    // If the request resolves with an error, set the error message in the state
     axios
       .post(`${import.meta.env.VITE_API_URL}/auth/signup`, requestBody)
       .then((response) => {
@@ -34,86 +30,76 @@ function SignupPage(props) {
   };
 
   return (
-    <div>
-    <section className="vh-100 bg-image">
-      <div className="mask d-flex align-items-center h-100 gradient-custom-3">
-        <div className="container h-100">
-          <div className="row d-flex justify-content-center align-items-center h-100">
-            <div className="col-12 col-md-9 col-lg-7 col-xl-6">
-              <div className="card">
-                <div className="card-body p-5">
-                  <h2 className="text-uppercase text-center mb-5">
-                    Create an account
-                  </h2>
+    <div className="relative h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+          Create an account
+        </h2>
 
-                  <form onSubmit={handleSignupSubmit}>
-                    <div className="form-outline mb-4">
-                      <input
-                        type="text"
-                        name="name"
-                        onChange={handleName}
-                        id="form3Example1cg"
-                        className="form-control form-control-lg"
-                      />
-                      <label className="form-label" for="form3Example1cg">
-                        Your Name
-                      </label>
-                    </div>
-
-                    <div className="form-outline mb-4">
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="example@example.com"
-                        onChange={handleEmail}
-                        id="form3Example3cg"
-                        className="form-control form-control-lg"
-                      />
-                      <label className="form-label" for="form3Example3cg">
-                        Your Email
-                      </label>
-                    </div>
-
-                    <div className="form-outline mb-4">
-                      <input
-                        type="password"
-                        name="password"
-                        onChange={handlePassword}
-                        id="form3Example4cg"
-                        className="form-control form-control-lg"
-                      />
-                      <label className="form-label" for="form3Example4cg">
-                        Password
-                      </label>
-                    </div>
-
-                    <div className="d-flex justify-content-center">
-                      <button
-                        type="submit"
-                        className="btn btn-success btn-block btn-lg gradient-custom-4 text-body"
-                      >
-                        Sign Up
-                      </button>
-                    </div>
-
-                    <p className="text-center text-muted mt-5 mb-0">
-                      Have already an account?{" "}
-                      <a href="/login" className="fw-bold text-body">
-                        <u>Login here</u>
-                      </a>
-                    </p>
-                  </form>
-                </div>
-              </div>
-            </div>
+        <form onSubmit={handleSignupSubmit}>
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-gray-700">
+              Your Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              onChange={handleName}
+              id="name"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
           </div>
-        </div>
+
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-700">
+              Your Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="example@example.com"
+              onChange={handleEmail}
+              id="email"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              onChange={handlePassword}
+              id="password"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {errorMessage && (
+            <p className="text-red-500 text-center mb-4">{errorMessage}</p>
+          )}
+
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+            >
+              Sign Up
+            </button>
+          </div>
+        </form>
+
+        <p className="text-center text-gray-600 mt-6">
+          Have already an account?{" "}
+          <Link to="/login" className="text-indigo-600 hover:underline">
+            Login here
+          </Link>
+        </p>
       </div>
-    </section>
-    {errorMessage && <p className="error-message">{errorMessage}</p>}
-  </div>
-);
-  
-  
+    </div>
+  );
 }
+
 export default SignupPage;
