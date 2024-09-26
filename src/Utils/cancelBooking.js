@@ -16,7 +16,6 @@ export const handleCancelBooking = async (
     if (cancelConfirmation) {
       // Get the booking date and time
       const bookingDate = new Date(bookedSeats[dayIndex][slotIndex].bookingDate);
-      console.log(bookingDate);
       const currentDate = new Date();
 
       // Check if the cancellation is within 2 hours of the booking time
@@ -29,12 +28,11 @@ export const handleCancelBooking = async (
       }
 
 
-
-
       // Filter the cancellation queue for the current day
       const cancelQueueForDay = cancelQueue.filter(entry => entry.dayIndex === dayIndex);
       const cancelSuffix = cancelQueueForDay.length + 1; // Reset suffix for each day
       const cancelId = `C${cancelSuffix}`;
+      const bookingId = bookedSeats[dayIndex][slotIndex].bookingId;
 
       // Update the booking to indicate cancellation
       const updatedSeats = [...bookedSeats];
@@ -55,7 +53,8 @@ export const handleCancelBooking = async (
           userId: user.user._id,
           dayIndex,
           slotIndex,
-          cancelId
+          cancelId,
+          bookingId
         });
         console.log("Cancellation Request has been saved succesfully.");
       } catch (error) {
