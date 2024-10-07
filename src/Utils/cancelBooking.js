@@ -10,58 +10,60 @@ export const handleCancelBooking = async (
   cancelQueue,
   setCancelQueue
 ) => {
-  if (bookedSeats[dayIndex][slotIndex] && bookedSeats[dayIndex][slotIndex].userId === user.user._id) {
+  const booking = bookedSeats[dayIndex][slotIndex];
+
+  // Check if the booking belongs to the current user
+  if (booking && booking.userId === user.user._id) {
     const cancelConfirmation = window.confirm("Do you want to request to cancel your booking?");
 
     if (cancelConfirmation) {
-      // Get the booking date and time
-      const bookingDate = new Date(bookedSeats[dayIndex][slotIndex].bookingDate);
+      // Get the booking date and current time
+      const bookingDate = new Date(booking.bookingDate);
       const currentDate = new Date();
 
-      // Check if the cancellation is within 2 hours of the booking time
-      const timeDifference = bookingDate - currentDate;
-      const hoursDifference = timeDifference / (1000 * 60 * 60);
-
-      if (hoursDifference <= 2) {
-        setError("You cannot cancel your booking less than 2 hours before the booked time.");
-        return;
-      }
-
-
-      // Filter the cancellation queue for the current day
+     
+      // Generate a unique cancellation ID for the queue
       const cancelQueueForDay = cancelQueue.filter(entry => entry.dayIndex === dayIndex);
-      const cancelSuffix = cancelQueueForDay.length + 1; // Reset suffix for each day
+      const cancelSuffix = cancelQueueForDay.length + 1;
       const cancelId = `C${cancelSuffix}`;
-      const bookingId = bookedSeats[dayIndex][slotIndex].bookingId;
+      console.log("BookingId:", booking.bookingId);
 
-      // Update the booking to indicate cancellation
-      const updatedSeats = [...bookedSeats];
-      updatedSeats[dayIndex][slotIndex] = {
-        ...updatedSeats[dayIndex][slotIndex],
-        seatId: cancelId,
-        userName: `${user.user.name} ${cancelId}`
-      };
-      setBookedSeats(updatedSeats);
-
-      // Add to cancelQueue, including the day index
-      const newCancelQueue = [...cancelQueue, { userName: user.user.name, slotIndex: slotIndex, dayIndex }];
-      setCancelQueue(newCancelQueue);
-
-      // Make API request to save the cancellatiom request in the database
       try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/cancel`, {
-          userId: user.user._id,
-          dayIndex,
-          slotIndex,
-          cancelId,
-          bookingId
-        });
-        console.log("Cancellation Request has been saved succesfully.");
+        // Make the API request to cancel the booking
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/bookings/${booking.bookingId}/cancel`,
+          { isCanceled: true } // Payload indicating cancellation
+        );
+
+        if (response.status === 200) {
+          // Update the booking status to canceled in the UI
+          const updatedSeats = [...bookedSeats];
+          updatedSeats[dayIndex][slotIndex] = {
+            ...booking,
+            isCanceled: true, // Mark as canceled
+            userName: `${booking.userName} `, // Update name to indicate cancellation
+          };
+          setBookedSeats(updatedSeats);
+
+          // Add the cancellation to the queue
+          const newCancelQueue = [
+            ...cancelQueue,
+            { userName: booking.userName, slotIndex, dayIndex, cancelId },
+          ];
+          setCancelQueue(newCancelQueue);
+          console.log("new cancel queue: ",newCancelQueue);
+
+          // Clear any errors
+          setError(null);
+        } else {
+          setError("Failed to cancel the booking. Please try again.");
+        }
       } catch (error) {
-        setError("An error occured while processing your cancellation request.");
+        setError("An error occurred while processing your cancellation request.");
+        console.error("Cancel booking error:", error);
       }
     }
   } else {
-    setError("You can only cancel your own booking.");
+    setError("You cannot cancel a booking that is not yours.");
   }
 };

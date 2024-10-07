@@ -55,4 +55,8 @@
     cursor: not-allowed;
     color:rgb(13, 12, 12);
   }
-  
+  .canceled {
+    background-color: rgb(156, 156, 184);
+    color: white;
+
+  }

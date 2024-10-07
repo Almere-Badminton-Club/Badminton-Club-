@@ -49,15 +49,29 @@ const BookingTable = () => {
           userId,
           userName,
           bookingDate,
+          isCanceled,
         } = booking;
+
         updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
-        updatedSeats[dayIndex][slotIndex] = {
-          seatId,
-          bookingId,
-          userId,
-          userName,
-          bookingDate,
-        };
+
+        if (isCanceled) {
+          updatedSeats[dayIndex][slotIndex] = {
+            seatId,
+            bookingId,
+            userId,
+            userName: `${userName}`,
+            bookingDate,
+            isCanceled,
+          };
+        } else {
+          updatedSeats[dayIndex][slotIndex] = {
+            seatId,
+            bookingId,
+            userId,
+            userName,
+            bookingDate,
+          };
+        }
       });
 
       setBookedSeats(updatedSeats);
@@ -350,16 +364,30 @@ const BookingTable = () => {
                           bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
                             ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
                                 .userId === user.user._id
-                              ? "booked-by-user" // Different class if booked by the current user
-                              : "booked" // Class for booked by others
-                            : "available"
+                              ? "booked-by-user" // Class for booked by the current user
+                              : bookedSeats[dayIndex][
+                                  chunkIndex * 4 + slotIndex
+                                ].isCanceled
+                              ? "canceled" // Class for canceled booking
+                              : "booked" // Class for booking by others
+                            : "available" // Class for available slot
                         }
                       >
-                        {bookedSeats[dayIndex] &&
-                        bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                          ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
-                              .userName
-                          : "Available"}
+                        {
+                          bookedSeats[dayIndex] &&
+                          bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                            ? bookedSeats[dayIndex][chunkIndex * 4 + slotIndex]
+                                .isCanceled
+                              ? `${
+                                  bookedSeats[dayIndex][
+                                    chunkIndex * 4 + slotIndex
+                                  ].userName
+                                } C1` // Show canceled booking with user's name + C1
+                              : bookedSeats[dayIndex][
+                                  chunkIndex * 4 + slotIndex
+                                ].userName // Show user's name if booked
+                            : "Available" // Show "Available" if the slot is free
+                        }
                       </td>
                     ))}
                   </tr>
