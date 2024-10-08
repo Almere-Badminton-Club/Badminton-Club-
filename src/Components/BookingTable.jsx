@@ -49,29 +49,24 @@ const BookingTable = () => {
           userId,
           userName,
           bookingDate,
-          isCanceled,
+          cancelRequests,
         } = booking;
 
         updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
 
-        if (isCanceled) {
-          updatedSeats[dayIndex][slotIndex] = {
-            seatId,
-            bookingId,
-            userId,
-            userName: `${userName}`,
-            bookingDate,
-            isCanceled,
-          };
-        } else {
-          updatedSeats[dayIndex][slotIndex] = {
-            seatId,
-            bookingId,
-            userId,
-            userName,
-            bookingDate,
-          };
-        }
+        // Check if the booking has a cancel request
+        const isCanceled = cancelRequests?.some(
+          (request) => request.isCanceled
+        );
+
+        updatedSeats[dayIndex][slotIndex] = {
+          seatId,
+          bookingId,
+          userId,
+          userName: isCanceled ? `${userName} C1 ` : userName,
+          bookingDate,
+          isCanceled,
+        };
       });
 
       setBookedSeats(updatedSeats);
@@ -176,7 +171,6 @@ const BookingTable = () => {
             bookingDate: getBookingDate(dayIndex, startDate).toISOString(),
           };
           setBookedSeats(updatedSeats);
-          console.log("Updated bookedSeats after booking:", updatedSeats);
           setBookingId(response.data.booking.bookingId); // Set booking ID from response
           console.log("Booking successful.");
           // alert("You have successfully booked your slot. Enjoy your game!")
@@ -382,7 +376,7 @@ const BookingTable = () => {
                                   bookedSeats[dayIndex][
                                     chunkIndex * 4 + slotIndex
                                   ].userName
-                                } C1` // Show canceled booking with user's name + C1
+                                }` // Show canceled booking with user's name + C1
                               : bookedSeats[dayIndex][
                                   chunkIndex * 4 + slotIndex
                                 ].userName // Show user's name if booked

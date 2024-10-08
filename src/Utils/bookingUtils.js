@@ -10,7 +10,6 @@ const getMondayOfCurrentWeek = (date) => {
 
 export const fetchBookingsForDate = async (date) => {
   const formattedDate = date.toISOString().split("T")[0];
-  console.log("fetching bookings for date:", formattedDate);
 
   try {
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/bookings?date=${formattedDate}`, {
@@ -20,7 +19,6 @@ export const fetchBookingsForDate = async (date) => {
         Expires: "0",
       },
     });
-    console.log("fetched Bookings", response.data);
     return response.data.bookings;
   } catch (error) {
     // console.error("Error fetching bookings:", error);
