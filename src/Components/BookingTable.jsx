@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 import "../Styles/BookingTable.css";
 import { useBookingContext } from "../Context/BookingContext";
 import calculateWeekdays from "../Utils/calculateWeekDays";
-import { fetchMultipleDaysBookings } from "../Utils/bookingUtils"; // Import utility function
-import { handlePrevWeek, handleNextWeek } from "../Utils/weekNavigation"; // Import navigation functions
+import { fetchMultipleDaysBookings } from "../Utils/bookingUtils"; 
+import { handlePrevWeek, handleNextWeek } from "../Utils/weekNavigation"; 
 import generateObjectId from "../Utils/generateObjectId";
 import axios from "axios";
 import { handleWaitingListBooking } from "../Utils/waitingListBooking";
@@ -22,9 +22,10 @@ const BookingTable = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const navigate = useNavigate();
   const [cancelQueue, setCancelQueue] = useState([]);
+  const [cancelId, setCancelId ] = useState(null);
 
+  const navigate = useNavigate();
   const weekdays = calculateWeekdays(selectedDate);
   const slots = Array.from({ length: 25 }, (_, index) =>
     index < 20 ? (index + 1).toString() : `W${index - 19}`
@@ -39,6 +40,8 @@ const BookingTable = () => {
       const updatedSeats = Array.from({ length: weekdays.length }, () =>
         Array(slots.length).fill(null)
       );
+
+      const cancelQueueFromAPI = [];
 
       bookings.forEach((booking) => {
         const {
@@ -55,15 +58,23 @@ const BookingTable = () => {
         updatedSeats[dayIndex] = updatedSeats[dayIndex] || [];
 
         // Check if the booking has a cancel request
-        const isCanceled = cancelRequests?.some(
-          (request) => request.isCanceled
-        );
+        const isCanceled = cancelRequests?.some((request) => request.isCanceled);
+
+        if (isCanceled) {
+          cancelQueueFromAPI.push({
+            userName,
+            cancelId: cancelRequests[0].cancelId,
+            dayIndex,
+            slotIndex,
+            bookingDate,
+          });
+        }
 
         updatedSeats[dayIndex][slotIndex] = {
           seatId,
           bookingId,
           userId,
-          userName: isCanceled ? `${userName} C1 ` : userName,
+          userName: isCanceled ? `${userName} ${cancelRequests[0]?.cancelId}` : userName,
           bookingDate,
           isCanceled,
         };
@@ -71,8 +82,10 @@ const BookingTable = () => {
 
       setBookedSeats(updatedSeats);
       console.log("Updated bookedSeats:", updatedSeats);
+      setCancelQueue(cancelQueueFromAPI);
+      console.log("Updated cancel Queue from API:", cancelQueueFromAPI);
     } catch (error) {
-      // console.error("Error fetching bookings:", error);
+       console.error("Error fetching bookings:", error);
     }
   };
 
@@ -197,6 +210,7 @@ const BookingTable = () => {
     setBookedSeats(initialBookedSeats);
   }, [selectedDate]);
 
+
   // Add logic for cancellation and waiting list replacement
   const handleSeatCancel = (dayIndex, slotIndex) => {
     if (!isLoggedIn) {
@@ -221,7 +235,8 @@ const BookingTable = () => {
       slotIndex,
       setError,
       cancelQueue,
-      setCancelQueue
+      setCancelQueue,
+      setCancelId
     );
 
     // Notify W1 if available

@@ -8,22 +8,26 @@ export const handleCancelBooking = async (
   slotIndex,
   setError,
   cancelQueue,
-  setCancelQueue) => {
+  setCancelQueue,
+  setCancelId ) => {
   const booking = bookedSeats[dayIndex][slotIndex];
 
   if (booking && booking.userId === user.user._id) {
     const cancelConfirmation = window.confirm("Do you want to request to cancel your booking?");
 
+  console.log("cancelQueue:",cancelQueue);
 
     if (cancelConfirmation) {
-      // Generate a unique cancellation ID for the queue
+      
       const cancelQueueForDay = cancelQueue.filter(entry => entry.dayIndex === dayIndex);
+      console.log("cancelQueueForDay", cancelQueueForDay);
+
       const cancelSuffix = cancelQueueForDay.length + 1;
       const cancelId = `C${cancelSuffix}`;
-      console.log("BookingId:", booking.bookingId);
+      console.log("Generated cancelId:", cancelId);
 
       try {
-        // Update the booking document with a new cancelRequest
+        // API call to update the booking's cancellation status
         const response = await axios.put(`${import.meta.env.VITE_API_URL}/bookings/${booking.bookingId}/cancel`, {
           isCanceled: true,
           cancelRequest: {
@@ -47,7 +51,8 @@ export const handleCancelBooking = async (
           // Add the cancellation to the queue
           const newCancelQueue = [...cancelQueue, { cancelId, dayIndex, slotIndex }];
           setCancelQueue(newCancelQueue);
-          setError(null);
+          setCancelId(cancelId);
+          console.log("newCancelQueue:", newCancelQueue);
         } else {
           setError("Failed to cancel booking. Please try again.");
         }
