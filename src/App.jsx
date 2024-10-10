@@ -9,7 +9,6 @@ import IsPrivate from "./Components/IsPrivate";
 import IsAnon from "./Components/IsAnon";
 import BookingTable from "./Components/BookingTable";
 import AboutUs from "./Pages/AboutUs";
-import Footer from "./Components/Footer";
 
 function App() {
   return (
